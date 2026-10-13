@@ -1,0 +1,47 @@
+---
+import { groups, type Doc } from '../../data/docs';
+
+export type Head = { slug: string; text: string; subs: { slug: string; text: string }[] };
+interface Props {
+  docs: Doc[];
+  current: string;
+  heads: Head[];
+}
+const { docs, current, heads } = Astro.props;
+const chev = 'M3 4.5l3 3 3-3';
+---
+<nav class="sidetree" aria-label="Docs pages" style="display: flex; flex-direction: column; gap: 14px">
+{groups.map((g) => (
+<div>
+<button type="button" class="gbtn" aria-expanded="true">
+<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d={chev}></path></svg>
+<span aria-hidden="true" style={`width: 10px; height: 10px; background: ${g.color}; border: 1px solid #10161F`}></span>
+<span>mod {g.id}</span>
+</button>
+<ul style="list-style: none; margin: 4px 0 0; padding: 0">
+{docs.filter((d) => d.data.group === g.id).map((d) => {
+  const cur = d.id === current;
+  return (
+<li>
+<a class={cur ? 'side cur' : 'side'} href={`/docs/${d.id}/`} aria-current={cur ? 'page' : undefined}>{d.data.title}</a>
+{cur && heads.length > 0 && (
+<ul aria-label="On this page" style="list-style: none; margin: 4px 0 8px; padding: 0">
+{heads.map((h, i) => (
+<li>
+<a class={i === 0 ? 'h2l cur' : 'h2l'} href={`#${h.slug}`} data-head={h.slug}>{h.text}</a>
+{h.subs.length > 0 && (
+<ul style="list-style: none; margin: 0; padding: 0" hidden={i !== 0}>
+{h.subs.map((s) => <li><a class="h3l" href={`#${s.slug}`}>{s.text}</a></li>)}
+</ul>
+)}
+</li>
+))}
+</ul>
+)}
+</li>
+  );
+})}
+</ul>
+</div>
+))}
+</nav>

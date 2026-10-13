@@ -1,0 +1,176 @@
+---
+import { INSTALL, structRows } from '../../data/landing';
+const offsets = ['0x00', '0x08', '0x10', '0x18', '0x20'];
+const heap = [
+  ['h0', '11', '"Hello, rustique"'],
+  ['h1', '12', '"Eager, not N+1"'],
+  ['h2', '13', '"Two dialects"'],
+];
+---
+<section class="wrap" style="max-width: 1280px; margin: 0 auto; padding: 56px 32px 0">
+
+<div class="mono" aria-hidden="true" style="font-size: clamp(30px, 4.4vw, 64px); font-weight: 700; line-height: 1; height: 26px; display: flex; overflow: hidden">
+<div class="ticks" style="flex: 1 1 auto; display: flex; align-items: flex-start; color: #5B6676">
+{offsets.map((o) => (
+<span style="flex: 0 0 8ch; box-sizing: border-box; height: 26px; border-left: 1px solid #10161F"><span style="display: block; padding-left: 6px; font-size: 12px; font-weight: 400; line-height: 1">{o}</span></span>
+))}
+</div>
+</div>
+
+<h1 class="mono" style="margin: 10px 0 0; font-size: clamp(30px, 4.4vw, 64px); line-height: 1.12; font-weight: 700; letter-spacing: 0; text-wrap: balance">
+<span class="chars" style="display: inline; background-color: #F3F5F7; box-decoration-break: clone; -webkit-box-decoration-break: clone">Eloquent models,</span><br>
+<span class="chars" style="display: inline; background-color: #F3F5F7; box-decoration-break: clone; -webkit-box-decoration-break: clone">laid out as </span><span class="chars" style="display: inline; background-color: #FF7448; box-decoration-break: clone; -webkit-box-decoration-break: clone">Rust structs.</span>
+</h1>
+
+<div style="display: flex; flex-wrap: wrap; gap: 40px 56px; align-items: flex-end; margin-top: 36px">
+<div style="flex: 7 1 460px; min-width: 0">
+<p style="margin: 0; max-width: 58ch; font-size: 19px; line-height: 1.55; color: #3C4756; text-wrap: pretty">Rustique is an active-record ORM for Rust with the API you know from Laravel: models, a fluent query builder, relations, migrations and factories. Every column gets a compile-time constant, so typos fail the build. One API speaks MySQL and Oracle.</p>
+<div style="display: flex; flex-wrap: wrap; gap: 16px; margin-top: 28px; align-items: stretch">
+<div class="inst" style="display: flex; align-items: stretch; border: 1px solid #10161F; background: #F3F5F7; min-width: 0">
+<span class="mono" style="display: flex; align-items: center; padding: 0 14px; background: #10161F; color: #8A96A6; font-size: 13px">$</span>
+<code class="mono" style="display: flex; align-items: center; padding: 0 18px; font-size: 15px; white-space: nowrap">{INSTALL}</code>
+<button class="copy" type="button" data-copy={INSTALL} aria-label="Copy install command">Copy</button>
+</div>
+<a class="btn" href="/docs/">Read the docs
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4"></path></svg>
+</a>
+</div>
+<p class="mono" style="margin: 18px 0 0; font-size: 12px; color: #5B6676">async on tokio · Rust 1.88+ · unsafe forbidden · MIT or Apache-2.0</p>
+</div>
+
+<div class="mono" style="flex: 5 1 380px; min-width: 0; background: #10161F; color: #E8ECF1; border: 1px solid #10161F">
+<div style="display: flex; justify-content: space-between; padding: 10px 16px; border-bottom: 1px solid #2A3442; font-size: 12px; color: #8A96A6">
+<span>src/main.rs</span>
+<span>eager load · 2 statements</span>
+</div>
+<div class="scrollx" style="padding: 18px 20px 20px; font-size: 13.5px; line-height: 1.75">
+<div class="cl"><span class="k">let</span><span class="p"> users = </span><span class="t">User</span><span class="p">::query()</span></div>
+<div class="cl"><span class="p">    .where_(</span><span class="t">User</span><span class="p">::</span><span class="c">NAME</span><span class="p">, </span><span class="s">"="</span><span class="p">, </span><span class="s">"Ann"</span><span class="p">)</span></div>
+<div class="cl"><span class="p">    .with(</span><span class="r">"posts"</span><span class="p">)</span></div>
+<div class="cl"><span class="p">    .get(&amp;db).</span><span class="k">await</span><span class="p">?;</span><span class="caret" aria-hidden="true"></span></div>
+</div>
+</div>
+</div>
+
+<figure aria-label="Animated diagram: the query runs two SQL statements and its rows fill the User struct's fields; the posts field points to a heap buffer of three Post structs." style="margin: 56px 0 0">
+<div class="scrollx rig-d" style="padding-bottom: 8px">
+<div style="min-width: 880px; position: relative">
+
+<div class="mono cond" style="display: flex; flex-direction: column; gap: 8px; font-size: 12.5px">
+<div class="anim" style="animation-name: w1; display: flex; align-items: stretch; border: 1px solid #10161F; background: #F3F5F7">
+<span style="display: flex; align-items: center; padding: 0 12px; background: #10161F; color: #F3F5F7; font-weight: 700">q1</span>
+<span style="flex: 1 1 auto; padding: 8px 14px; white-space: nowrap">SELECT * FROM `users` WHERE `name` = ? AND `users`.`deleted_at` IS NULL</span>
+<span style="display: flex; align-items: center; padding: 0 14px; border-left: 1px solid #10161F; color: #3C4756">1 row → User</span>
+</div>
+<div class="anim" style="animation-name: w2; display: flex; align-items: stretch; border: 1px solid #10161F; background: #F3F5F7">
+<span style="display: flex; align-items: center; padding: 0 12px; background: #10161F; color: #F3F5F7; font-weight: 700">q2</span>
+<span style="flex: 1 1 auto; padding: 8px 14px; white-space: nowrap">SELECT * FROM `posts` WHERE `posts`.`user_id` IN (?)</span>
+<span style="display: flex; align-items: center; padding: 0 14px; border-left: 1px solid #10161F; color: #3C4756">3 rows → Vec&lt;Post&gt;</span>
+</div>
+</div>
+
+<div style="display: flex; align-items: baseline; justify-content: space-between; margin-top: 28px">
+<p class="mono" style="margin: 0; font-size: 14px; font-weight: 700">struct User</p>
+<p class="mono" style="margin: 0; font-size: 12px; color: #5B6676">size_of::&lt;User&gt;() == 120 · drawn in declaration order; rustc may reorder</p>
+</div>
+
+<div class="mono cond" style="display: grid; grid-template-columns: 8fr 24fr 24fr 12fr 12fr 12fr 4fr 24fr; margin-top: 10px; font-size: 11.5px; line-height: 1.3">
+{structRows.map((r) => (
+<div style="padding: 0 4px 8px; border-left: 1px solid #10161F"><b>{r[1]}</b><br><span style={`color: ${r[3]}`}>{r[2]}</span></div>
+))}
+<div style="padding: 0 0 8px; border-left: 1px solid #10161F"></div>
+<div style="padding: 0 4px 8px; border-left: 1px solid #10161F; border-right: 1px solid #10161F"><b>posts</b><br><span style="color: #0E7A55">Rel&lt;Vec&lt;Post&gt;&gt;</span></div>
+</div>
+
+<div class="mono" aria-hidden="true" style="display: grid; grid-template-columns: 8fr 24fr 24fr 12fr 12fr 12fr 4fr 24fr; font-size: 11.5px; color: #5B6676; position: relative">
+{structRows.map((r) => <span style="border-left: 1px solid #10161F; padding: 0 0 4px 4px">{r[0]}</span>)}
+<span style="border-left: 1px solid #10161F; padding: 0 0 4px 0"></span>
+<span style="border-left: 1px solid #10161F; border-right: 1px solid #10161F; padding: 0 0 4px 4px; display: flex; justify-content: space-between">+0x60<span style="padding-right: 4px">0x78</span></span>
+</div>
+
+<div class="mono" style="display: grid; grid-template-columns: 8fr 24fr 24fr 12fr 12fr 12fr 4fr 24fr; height: 68px; border: 1px solid #10161F; background: #F3F5F7; font-size: 14px">
+<div style="position: relative; border-right: 1px solid #10161F"><div class="hatch" style="position: absolute; inset: 0"></div><div class="anim" style="animation-name: v0; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: #FF7448; font-weight: 700">1</div></div>
+<div style="position: relative; border-right: 1px solid #10161F"><div class="hatch" style="position: absolute; inset: 0"></div><div class="anim" style="animation-name: v1; position: absolute; inset: 0; display: flex; align-items: center; padding: 0 12px; background: #8DA2FF">"Ann"</div></div>
+<div style="position: relative; border-right: 1px solid #10161F"><div class="hatch" style="position: absolute; inset: 0"></div><div class="anim" style="animation-name: v2; position: absolute; inset: 0; display: flex; align-items: center; padding: 0 12px; background: #8DA2FF">"ann@example.com"</div></div>
+<div style="position: relative; border-right: 1px solid #10161F"><div class="hatch" style="position: absolute; inset: 0"></div><div class="anim cond" style="animation-name: v3; position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; padding: 0 8px; background: #FFC53D; font-size: 12px; line-height: 1.3"><span>Some(</span><span>2026-10-13)</span></div></div>
+<div style="position: relative; border-right: 1px solid #10161F"><div class="hatch" style="position: absolute; inset: 0"></div><div class="anim cond" style="animation-name: v4; position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; padding: 0 8px; background: #FFC53D; font-size: 12px; line-height: 1.3"><span>Some(</span><span>2026-10-13)</span></div></div>
+<div style="position: relative; border-right: 1px solid #10161F"><div class="hatch" style="position: absolute; inset: 0"></div><div class="anim" style="animation-name: v5; position: absolute; inset: 0; display: flex; align-items: center; padding: 0 10px; background: #FFC53D; font-size: 12px">None</div></div>
+<div class="hatch" title="padding" style="border-right: 1px solid #10161F; background-color: #E3E8EE"></div>
+<div style="position: relative">
+<div class="hatch" style="position: absolute; inset: 0"></div>
+<div class="anim" style="animation-name: v6; position: absolute; inset: 0; display: flex; align-items: center; padding: 0 12px; background: #CFF3E3; font-size: 12px">NotLoaded</div>
+<div class="anim" style="animation-name: ld; position: absolute; inset: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); background: #38D39F; font-size: 12px">
+<span style="display: flex; flex-direction: column; justify-content: center; align-items: center; border-right: 1px solid #10161F; line-height: 1.2">ptr<svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true" style="margin-top: 4px"><circle cx="5" cy="5" r="4" fill="#10161F"></circle></svg></span>
+<span style="display: flex; flex-direction: column; justify-content: center; align-items: center; border-right: 1px solid #10161F; line-height: 1.4">cap<b>4</b></span>
+<span style="display: flex; flex-direction: column; justify-content: center; align-items: center; line-height: 1.4">len<b>3</b></span>
+</div>
+</div>
+</div>
+
+<div style="position: relative; display: flex; justify-content: space-between; gap: 32px; padding-top: 40px; min-height: 250px">
+<div class="anim" aria-hidden="true" style="animation-name: pt; position: absolute; inset: 0; pointer-events: none">
+<div style="position: absolute; left: 83.33%; top: 0; height: 20px; border-left: 2px solid #0E7A55; margin-left: -1px"></div>
+<div style="position: absolute; left: 41%; right: 16.67%; top: 20px; border-top: 2px solid #0E7A55"></div>
+<div style="position: absolute; left: 41%; top: 20px; height: 92px; border-left: 2px solid #0E7A55"></div>
+<div style="position: absolute; left: 41%; top: 110px; width: 3.2%; border-top: 2px solid #0E7A55"></div>
+<div style="position: absolute; left: calc(44.2% - 2px); top: 105px; width: 0; height: 0; border-top: 6px solid transparent; border-bottom: 6px solid transparent; border-left: 9px solid #0E7A55"></div>
+</div>
+
+<div style="flex: 0 0 36%; max-width: 36%">
+<p style="margin: 0; font-size: 17px; line-height: 1.55; text-wrap: pretty"><code class="mono" style="font-size: 14px; background: #CFF3E3; padding: 1px 5px">with("posts")</code> fills every user's posts in one more statement: one per relation level, batched by 1000 parent keys. Never one per row.</p>
+<p style="margin: 14px 0 0; font-size: 15px; line-height: 1.55; color: #3C4756; text-wrap: pretty"><code class="mono" style="font-size: 13px">Rel&lt;T&gt;</code> stays <code class="mono" style="font-size: 13px">NotLoaded</code> until you ask. Rust can't run a query on field access, so loading is always explicit.</p>
+<p class="mono anim" style="animation-name: sc; margin: 18px 0 0; font-size: 12px; color: #0E7A55; font-weight: 700">2 statements · 1 User · 3 Posts</p>
+</div>
+
+<div class="mono anim" style="animation-name: hp; flex: 0 0 55%; max-width: 55%; font-size: 12.5px">
+<div style="display: flex; align-items: center; justify-content: space-between; height: 28px; font-size: 12px; color: #3C4756"><span><b style="color: #10161F">heap</b> · Vec&lt;Post&gt; buffer</span><span>cap 4 · len 3</span></div>
+<div class="cond" style="display: grid; grid-template-columns: 8fr 8fr 24fr; height: 22px; align-items: end; font-size: 11.5px; color: #5B6676"><span style="padding: 0 8px 3px">id i64</span><span style="padding: 0 8px 3px">user_id i64</span><span style="padding: 0 8px 3px">title String</span></div>
+<div style="border: 1px solid #10161F; background: #F3F5F7">
+{heap.map(([a, id, title]) => (
+<div class="anim" style={`animation-name: ${a}; display: grid; grid-template-columns: 8fr 8fr 24fr; height: 40px; border-bottom: 1px solid #10161F`}><span style="display: flex; align-items: center; padding: 0 10px; background: #FF7448; border-right: 1px solid #10161F">{id}</span><span style="display: flex; align-items: center; padding: 0 10px; background: #FF7448; border-right: 1px solid #10161F">1</span><span style="display: flex; align-items: center; padding: 0 12px; background: #8DA2FF">{title}</span></div>
+))}
+<div class="hatch" style="display: flex; align-items: center; height: 40px; padding: 0 12px; color: #3C4756; font-size: 12px">spare capacity · uninit</div>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="rig-m">
+<div class="mono cond" style="display: flex; flex-direction: column; gap: 8px; font-size: 12.5px">
+<div class="anim" style="animation-name: w1; border: 1px solid #10161F; background: #F3F5F7">
+<div style="display: flex; justify-content: space-between; gap: 8px; padding: 6px 10px; background: #10161F; color: #F3F5F7"><b>q1</b><span style="color: #B0BAC6">1 row → User</span></div>
+<p style="margin: 0; padding: 8px 10px; line-height: 1.5; overflow-wrap: anywhere">SELECT * FROM `users` WHERE `name` = ? AND `users`.`deleted_at` IS NULL</p>
+</div>
+<div class="anim" style="animation-name: w2; border: 1px solid #10161F; background: #F3F5F7">
+<div style="display: flex; justify-content: space-between; gap: 8px; padding: 6px 10px; background: #10161F; color: #F3F5F7"><b>q2</b><span style="color: #B0BAC6">3 rows → Vec&lt;Post&gt;</span></div>
+<p style="margin: 0; padding: 8px 10px; line-height: 1.5; overflow-wrap: anywhere">SELECT * FROM `posts` WHERE `posts`.`user_id` IN (?)</p>
+</div>
+</div>
+<div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 24px 0 8px">
+<p class="mono" style="margin: 0; font-size: 14px; font-weight: 700">struct User</p>
+<p class="mono" style="margin: 0; font-size: 12px; color: #5B6676">120 bytes</p>
+</div>
+<div class="mono" style="border: 1px solid #10161F; background: #F3F5F7; font-size: 13px">
+{structRows.map((r) => (
+<div style="display: grid; grid-template-columns: 58px minmax(0, 1.25fr) minmax(0, 1fr); min-height: 52px; border-bottom: 1px solid #10161F"><span style="display: flex; align-items: center; padding: 0 8px; font-size: 12px; color: #5B6676; border-right: 1px solid #10161F">{r[0]}</span><span class="cond" style="display: flex; flex-direction: column; justify-content: center; padding: 6px 10px; line-height: 1.3; border-right: 1px solid #10161F; min-width: 0; overflow-wrap: anywhere"><b>{r[1]}</b><span style={`font-size: 12px; color: ${r[3]}`}>{r[2]}</span></span><span style="position: relative"><span class="hatch" style="position: absolute; inset: 0"></span><span class="anim cond" style={`animation-name: ${r[6]}; position: absolute; inset: 0; display: flex; align-items: center; padding: 0 10px; background: ${r[5]}; ${r[1] === 'id' ? 'font-weight: 700;' : 'font-size: 12px;'} overflow-wrap: anywhere`}>{r[4]}</span></span></div>
+))}
+<div class="hatch" style="display: grid; grid-template-columns: 58px minmax(0, 1fr); min-height: 28px; border-bottom: 1px solid #10161F; background-color: #E3E8EE"><span style="display: flex; align-items: center; padding: 0 8px; font-size: 12px; color: #3C4756; border-right: 1px solid #10161F">+0x5C</span><span style="display: flex; align-items: center; padding: 0 10px; font-size: 12px; color: #3C4756">4 bytes padding</span></div>
+<div style="display: grid; grid-template-columns: 58px minmax(0, 1.25fr) minmax(0, 1fr); min-height: 52px"><span style="display: flex; align-items: center; padding: 0 8px; font-size: 12px; color: #5B6676; border-right: 1px solid #10161F">+0x60</span><span class="cond" style="display: flex; flex-direction: column; justify-content: center; padding: 6px 10px; line-height: 1.3; border-right: 1px solid #10161F; min-width: 0; overflow-wrap: anywhere"><b>posts</b><span style="font-size: 12px; color: #0E7A55">Rel&lt;Vec&lt;Post&gt;&gt;</span></span><span style="position: relative"><span class="hatch" style="position: absolute; inset: 0"></span><span class="anim" style="animation-name: v6; position: absolute; inset: 0; display: flex; align-items: center; padding: 0 10px; background: #CFF3E3; font-size: 12px">NotLoaded</span><span class="anim" style="animation-name: ld; position: absolute; inset: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); background: #38D39F; font-size: 11px"><span style="display: flex; align-items: center; justify-content: center; border-right: 1px solid #10161F">ptr</span><span style="display: flex; align-items: center; justify-content: center; border-right: 1px solid #10161F">cap 4</span><span style="display: flex; align-items: center; justify-content: center">len 3</span></span></span></div>
+</div>
+<div class="mono anim" style="animation-name: hp; margin-top: 20px; font-size: 12.5px">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; height: 28px; font-size: 12px; color: #3C4756"><span><b style="color: #10161F">heap</b> · Vec&lt;Post&gt;</span><span>cap 4 · len 3</span></div>
+<div style="border: 1px solid #10161F; background: #F3F5F7">
+{heap.map(([a, id, title]) => (
+<div class="anim" style={`animation-name: ${a}; display: grid; grid-template-columns: 1fr 1fr 3fr; min-height: 40px; border-bottom: 1px solid #10161F`}><span style="display: flex; align-items: center; padding: 0 10px; background: #FF7448; border-right: 1px solid #10161F">{id}</span><span style="display: flex; align-items: center; padding: 0 10px; background: #FF7448; border-right: 1px solid #10161F">1</span><span style="display: flex; align-items: center; padding: 0 10px; background: #8DA2FF; overflow-wrap: anywhere">{title}</span></div>
+))}
+<div class="hatch" style="display: flex; align-items: center; height: 40px; padding: 0 10px; color: #3C4756; font-size: 12px">spare capacity · uninit</div>
+</div>
+</div>
+<p style="margin: 24px 0 0; font-size: 16px; line-height: 1.55; text-wrap: pretty"><code class="mono" style="font-size: 13px; background: #CFF3E3; padding: 1px 5px">with("posts")</code> fills every user's posts in one more statement: one per relation level, batched by 1000 parent keys. Never one per row.</p>
+<p style="margin: 12px 0 0; font-size: 15px; line-height: 1.55; color: #3C4756; text-wrap: pretty"><code class="mono" style="font-size: 13px">Rel&lt;T&gt;</code> stays <code class="mono" style="font-size: 13px">NotLoaded</code> until you ask. Rust can't run a query on field access, so loading is always explicit.</p>
+<p class="mono anim" style="animation-name: sc; margin: 12px 0 0; font-size: 12px; color: #0E7A55; font-weight: 700">2 statements · 1 User · 3 Posts</p>
+</div>
+</figure>
+</section>

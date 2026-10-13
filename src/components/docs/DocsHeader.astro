@@ -1,0 +1,75 @@
+---
+import Logo from '../Logo.astro';
+import SearchBox from './SearchBox.astro';
+import Sidebar, { type Head } from './Sidebar.astro';
+import { GITHUB, type Doc } from '../../data/docs';
+
+interface Props {
+  docs: Doc[];
+  entry: Doc;
+  heads: Head[];
+}
+const { docs, entry, heads } = Astro.props;
+---
+<header class="dh" style="position: sticky; top: 0; z-index: 5; background: #F3F5F7; border-bottom: 1px solid #C9D2DC">
+<div class="wrap hwrap" style="max-width: 1440px; margin: 0 auto; padding: 0 32px; display: flex; flex-wrap: wrap; align-items: stretch; gap: 0 24px">
+<a class="logo" href="/" aria-label="rustique home" style="display: flex; align-items: center; gap: 12px; min-height: 64px; text-decoration: none">
+<Logo />
+<span class="wordmark" style="display: flex; align-items: baseline; gap: 10px">
+<span class="mono" style="font-size: 18px; font-weight: 700; letter-spacing: -0.02em">rustique</span>
+<span class="mono" style="font-size: 12px; color: #3C4756">docs</span>
+</span>
+</a>
+
+<SearchBox />
+
+<div class="metablk" style="display: flex; align-items: center; min-height: 64px">
+<span style="display: flex; align-items: baseline; gap: 16px">
+<span class="mono" style="font-size: 12px; color: #5B6676">v0.2</span>
+<a href={GITHUB} style="font-size: 14px">GitHub</a>
+</span>
+</div>
+
+<button type="button" class="mtoggle" aria-expanded="false" aria-controls="mpanel" aria-label="Docs menu">
+<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path data-icon d="M3 5h12M3 9h12M3 13h12"></path></svg>
+<span class="mlabel" style="display: flex; flex-direction: column"><span>Docs menu</span><span class="mono msub" style="font-size: 12px; font-weight: 400; color: #3C4756">{entry.data.group} :: {entry.id}</span></span>
+<svg class="mchev" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true" style="margin-left: auto"><path d="M3 4.5l3 3 3-3"></path></svg>
+</button>
+</div>
+
+<div id="mpanel" class="mpanel">
+<Sidebar docs={docs} current={entry.id} heads={heads} />
+<div style="display: flex; align-items: baseline; gap: 16px; margin-top: 16px; padding: 12px 10px 0; border-top: 1px solid #C9D2DC">
+<span class="mono" style="font-size: 12px; color: #5B6676">v0.2</span>
+<a href={GITHUB} style="font-size: 14px">GitHub</a>
+</div>
+</div>
+</header>
+
+<script>
+  const header = document.querySelector<HTMLElement>('.dh')!;
+  const toggle = header.querySelector<HTMLButtonElement>('.mtoggle')!;
+  const icon = toggle.querySelector('[data-icon]')!;
+
+  function setOpen(open: boolean) {
+    header.classList.toggle('navopen', open);
+    toggle.setAttribute('aria-expanded', String(open));
+    icon.setAttribute('d', open ? 'M4 4l10 10M14 4L4 14' : 'M3 5h12M3 9h12M3 13h12');
+  }
+  toggle.addEventListener('click', () => setOpen(!header.classList.contains('navopen')));
+  // Following an in-page link from the mobile panel closes it.
+  header.querySelector('#mpanel')!.addEventListener('click', (e) => {
+    if ((e.target as Element).closest('a')) setOpen(false);
+  });
+  document.addEventListener('keydown', (e) => e.key === 'Escape' && setOpen(false));
+
+  // Compact "stuck" header after scrolling past 80px; release under 8px (hysteresis avoids flicker).
+  addEventListener(
+    'scroll',
+    () => {
+      if (scrollY > 80) header.classList.add('stuck');
+      else if (scrollY < 8) header.classList.remove('stuck');
+    },
+    { passive: true },
+  );
+</script>

@@ -1,0 +1,58 @@
+---
+import { benchRows } from '../../data/landing';
+import { GITHUB } from '../../data/docs';
+const rows = benchRows('mysql');
+---
+<section id="bench" class="wrap" style="max-width: 1280px; margin: 0 auto; padding: 136px 32px 0">
+<div style="display: flex; flex-wrap: wrap; gap: 24px 48px; align-items: flex-end; justify-content: space-between">
+<div style="flex: 1 1 520px; min-width: 0">
+<h2 class="mono" style="margin: 0; font-size: clamp(26px, 3vw, 40px); line-height: 1.15; font-weight: 700; text-wrap: balance">Eloquent's API, without Eloquent's runtime.</h2>
+<p style="margin: 20px 0 0; max-width: 60ch; color: #3C4756; text-wrap: pretty">Mean time per operation on the same data, 100,000 users and 1M posts, against Laravel Eloquent with OPcache JIT. Shorter is faster; bars are scaled per scenario.</p>
+</div>
+<div role="group" aria-label="Benchmark database" style="display: flex; border: 1px solid #10161F; background: #F3F5F7">
+<button type="button" class="seg on" aria-pressed="true" data-bench="mysql">MySQL 8.4</button>
+<button type="button" class="seg" aria-pressed="false" data-bench="oracle">Oracle XE 21c</button>
+</div>
+</div>
+
+<div style="margin-top: 36px; border-top: 1px solid #10161F">
+{rows.map((b) => (
+<div data-row style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px 28px; padding: 18px 0; border-bottom: 1px solid #10161F">
+<div class="bname" style="flex: 0 0 240px; min-width: 0"><p class="mono" style="margin: 0; font-size: 13px; font-weight: 700">{b.name}</p><p style="margin: 2px 0 0; font-size: 14px; color: #3C4756">{b.label}</p></div>
+<div class="bbars" style="flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; align-items: center; gap: 12px"><div style="flex: 1 1 auto; height: 22px"><div class="bar bytes" data-rw style={`height: 22px; width: ${b.rw}; background-color: #FF7448; border: 1px solid #10161F`}></div></div><span class="mono" data-r style="flex: 0 0 104px; font-size: 12px; font-variant-numeric: tabular-nums">{b.r}</span></div>
+<div style="display: flex; align-items: center; gap: 12px"><div style="flex: 1 1 auto; height: 22px"><div class="bar hatch" style="height: 22px; width: 100%; background-color: #E3E8EE; border: 1px solid #10161F"></div></div><span class="mono" data-e style="flex: 0 0 104px; font-size: 12px; color: #3C4756; font-variant-numeric: tabular-nums">{b.e}</span></div>
+</div>
+<p class="mono bfac" data-factor style="flex: 0 0 132px; margin: 0; font-size: clamp(20px, 2vw, 26px); font-weight: 700; font-variant-numeric: tabular-nums; text-align: right">{b.factor}</p>
+</div>
+))}
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 12px 28px; justify-content: space-between; margin-top: 18px; font-size: 14px; color: #3C4756">
+<p style="margin: 0; display: flex; gap: 20px; flex-wrap: wrap"><span style="display: inline-flex; align-items: center; gap: 8px"><span class="bytes" style="width: 22px; height: 12px; background-color: #FF7448; border: 1px solid #10161F"></span>rustique</span><span style="display: inline-flex; align-items: center; gap: 8px"><span class="hatch" style="width: 22px; height: 12px; background-color: #E3E8EE; border: 1px solid #10161F"></span>Eloquent</span></p>
+<p style="margin: 0; max-width: 70ch">diesel is in the full results, and it is faster than rustique on some reads. <a href={`${GITHUB}/blob/main/bench/RESULTS-mysql.md`}>MySQL results</a> · <a href={`${GITHUB}/blob/main/bench/RESULTS-oracle.md`}>Oracle results</a> · <a href={`${GITHUB}/blob/main/bench/README.md`}>method</a></p>
+</div>
+</section>
+
+<script>
+  import { benchRows } from '../../data/landing';
+
+  const root = document.getElementById('bench')!;
+  const btns = root.querySelectorAll<HTMLButtonElement>('[data-bench]');
+  btns.forEach((btn) =>
+    btn.addEventListener('click', () => {
+      btns.forEach((b) => {
+        b.classList.toggle('on', b === btn);
+        b.setAttribute('aria-pressed', String(b === btn));
+      });
+      const rows = benchRows(btn.dataset.bench as 'mysql' | 'oracle');
+      // Same scenarios in the same order for both databases, so only the numbers change.
+      root.querySelectorAll<HTMLElement>('[data-row]').forEach((el, i) => {
+        const b = rows[i];
+        el.querySelector<HTMLElement>('[data-rw]')!.style.width = b.rw;
+        el.querySelector('[data-r]')!.textContent = b.r;
+        el.querySelector('[data-e]')!.textContent = b.e;
+        el.querySelector('[data-factor]')!.textContent = b.factor;
+      });
+    }),
+  );
+</script>

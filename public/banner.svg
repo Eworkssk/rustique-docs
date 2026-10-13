@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 240" width="900" height="240" role="img" aria-label="Rustique: Eloquent-style ORM for Rust">
+  <defs>
+    <pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse">
+      <path d="M24 0H0V24" fill="none" stroke="#E3E8EE" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="900" height="240" fill="#F3F5F7"/>
+  <rect width="900" height="240" fill="url(#grid)"/>
+  <rect x="0.5" y="0.5" width="899" height="239" fill="none" stroke="#10161F"/>
+  <!-- byte offsets, as on the landing page -->
+  <g font-family="'Martian Mono', ui-monospace, Menlo, Consolas, monospace" font-size="12" fill="#5B6676">
+    <path d="M48.5 36v14M168.5 36v14M288.5 36v14M408.5 36v14" stroke="#10161F"/>
+    <text x="54" y="46">0x00</text><text x="174" y="46">0x08</text><text x="294" y="46">0x10</text><text x="414" y="46">0x18</text>
+  </g>
+  <!-- logo: struct layout bars -->
+  <g transform="translate(48 70)">
+    <rect x="0.5" y="0.5" width="131" height="51" fill="#F3F5F7" stroke="#10161F"/>
+    <rect x="1" y="1" width="15" height="50" fill="#FF7448"/>
+    <rect x="16" y="1" width="42" height="50" fill="#8DA2FF"/>
+    <rect x="58" y="1" width="24" height="50" fill="#FFC53D"/>
+    <rect x="82" y="1" width="49" height="50" fill="#38D39F"/>
+    <path d="M16 1v50M58 1v50M82 1v50" stroke="#10161F"/>
+  </g>
+  <text x="204" y="112" font-family="'Martian Mono', ui-monospace, Menlo, Consolas, monospace" font-size="52" font-weight="700" fill="#10161F" letter-spacing="-1">rustique</text>
+  <text x="48" y="170" font-family="'Martian Mono', ui-monospace, Menlo, Consolas, monospace" font-size="24" font-weight="700" fill="#10161F">Eloquent models, laid out as Rust structs.</text>
+  <text x="48" y="206" font-family="'Martian Mono', ui-monospace, Menlo, Consolas, monospace" font-size="13" fill="#5B6676">MySQL 8.4 · Oracle 19c · async on tokio · Rust 1.88+ · unsafe forbidden</text>
+</svg>

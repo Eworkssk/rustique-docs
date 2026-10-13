@@ -1,0 +1,72 @@
+---
+import { SQL, diffRows } from '../../data/landing';
+---
+<section class="wrap" style="max-width: 1280px; margin: 0 auto; padding: 136px 32px 0" data-dialects>
+<div style="display: flex; flex-wrap: wrap; gap: 24px 48px; align-items: flex-end; justify-content: space-between">
+<div style="flex: 1 1 520px; min-width: 0">
+<h2 class="mono" style="margin: 0; font-size: clamp(26px, 3vw, 40px); line-height: 1.15; font-weight: 700; text-wrap: balance">One query. Two grammars.</h2>
+<p style="margin: 20px 0 0; max-width: 60ch; color: #3C4756; text-wrap: pretty">Write the query once. The grammar quotes identifiers, rewrites limits, builds upserts and stores JSON the way each database wants it. Tested against MySQL 8.4 and Oracle XE 21c.</p>
+</div>
+<div role="group" aria-label="SQL dialect" style="display: flex; border: 1px solid #10161F; background: #F3F5F7">
+<button type="button" class="seg on" aria-pressed="true" data-pick="mysql">MySQL 8.4</button>
+<button type="button" class="seg" aria-pressed="false" data-pick="oracle">Oracle 19c</button>
+</div>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; margin-top: 32px; border: 1px solid #10161F">
+<div class="mono" style="flex: 5 1 380px; min-width: 0; background: #10161F; color: #E8ECF1">
+<div class="scrollx" style="padding: 22px 22px; font-size: 13.5px; line-height: 1.75">
+<div class="cl"><span class="t">User</span><span class="p">::query()</span></div>
+<div class="cl"><span class="p">    .where_(</span><span class="t">User</span><span class="p">::</span><span class="c">NAME</span><span class="p">, </span><span class="s">"="</span><span class="p">, </span><span class="s">"Ann"</span><span class="p">)</span></div>
+<div class="cl"><span class="p">    .order_by_desc(</span><span class="t">User</span><span class="p">::</span><span class="c">ID</span><span class="p">)</span></div>
+<div class="cl"><span class="p">    .limit(</span><span class="n">10</span><span class="p">)</span></div>
+<div class="cl"><span class="p">    .to_sql(</span><span class="t">Dialect</span><span class="p">::</span><span class="c" data-arg>MySql</span><span class="p">)?;</span></div>
+</div>
+</div>
+<div style="flex: 7 1 480px; min-width: 0; display: flex; flex-direction: column; background: #F3F5F7">
+<div class="mono" style="display: flex; justify-content: space-between; padding: 10px 18px; border-bottom: 1px solid #10161F; font-size: 12px; color: #3C4756"><span>compiled.sql</span><span>binds: ["Ann"]</span></div>
+<p class="mono" aria-live="polite" data-sql style="margin: 0; flex: 1 1 auto; padding: 22px 18px; font-size: 14px; line-height: 1.7; word-break: break-word">{SQL.mysql}</p>
+</div>
+</div>
+
+<div class="scrollx" style="margin-top: 24px">
+<table class="dtable" style="width: 100%; border-collapse: collapse; font-size: 14px; overflow-wrap: anywhere">
+<caption style="text-align: left; padding: 0 0 10px; font-size: 13px; color: #3C4756">What the grammar changes for you, from the dialect guide</caption>
+<thead>
+<tr class="mono" style="font-size: 12px; text-align: left">
+<th scope="col" style="padding: 10px 14px; border: 1px solid #10161F; background: #E3E8EE; font-weight: 600; width: 22%">Concern</th>
+<th scope="col" class="diff on" data-db="mysql" style="padding: 10px 14px; border: 1px solid #10161F; font-weight: 600">MySQL 8.4</th>
+<th scope="col" class="diff" data-db="oracle" style="padding: 10px 14px; border: 1px solid #10161F; font-weight: 600">Oracle 19c</th>
+</tr>
+</thead>
+<tbody>
+{diffRows.map(([k, my, ora]) => (
+<tr class="drow">
+<th scope="row" style="padding: 10px 14px; border: 1px solid #10161F; text-align: left; font-weight: 600; background: #F3F5F7">{k}</th>
+<td class="diff on" data-db="mysql" style="padding: 10px 14px; border: 1px solid #10161F"><code class="mono" style="font-size: 12.5px">{my}</code></td>
+<td class="diff" data-db="oracle" style="padding: 10px 14px; border: 1px solid #10161F"><code class="mono" style="font-size: 12.5px">{ora}</code></td>
+</tr>
+))}
+</tbody>
+</table>
+</div>
+</section>
+
+<script>
+  import { SQL } from '../../data/landing';
+
+  const root = document.querySelector<HTMLElement>('[data-dialects]')!;
+  root.querySelectorAll<HTMLButtonElement>('[data-pick]').forEach((btn) =>
+    btn.addEventListener('click', () => {
+      const db = btn.dataset.pick as 'mysql' | 'oracle';
+      root.querySelectorAll<HTMLButtonElement>('[data-pick]').forEach((b) => {
+        const on = b === btn;
+        b.classList.toggle('on', on);
+        b.setAttribute('aria-pressed', String(on));
+      });
+      root.querySelectorAll<HTMLElement>('.diff').forEach((c) => c.classList.toggle('on', c.dataset.db === db));
+      root.querySelector('[data-arg]')!.textContent = db === 'mysql' ? 'MySql' : 'Oracle';
+      root.querySelector('[data-sql]')!.textContent = SQL[db];
+    }),
+  );
+</script>

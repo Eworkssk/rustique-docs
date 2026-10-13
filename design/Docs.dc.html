@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<!-- Extracted from Claude Design artifact "rustique" (Docs: Relationships artboard, 1440x2500).
+     Fonts: Google Fonts "Martian Mono" + "Schibsted Grotesk" (same as Main.dc.html).
+     {{...}} are template bindings. The <script type="text/x-dc"> at the end holds the sidebar tree
+     (groups/pages), the "on this page" headings, and the search behaviour. -->
+<html lang="en"><head>
+<meta charset="utf-8">
+<title>Relationships · rustique docs</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Martian+Mono:wdth,wght@75..112.5,100..800&family=Schibsted+Grotesk:ital,wght@0,400..900;1,400..900&display=swap">
+</head>
+<body>
+<style>
+body{margin:0;background:#F3F5F7}
+a{color:#10161F;text-underline-offset:3px;text-decoration-thickness:1px}
+a:hover{color:#C2401A}
+::selection{background:#FFC53D;color:#10161F}
+.rq{background-color:#F3F5F7;background-image:linear-gradient(#E3E8EE 1px,transparent 1px),linear-gradient(90deg,#E3E8EE 1px,transparent 1px);background-size:24px 24px}
+.rq :focus-visible{outline:2px solid #3050D8;outline-offset:2px}
+.mono{font-family:'Martian Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.cond{font-stretch:75%}
+.hatch{background-image:repeating-linear-gradient(135deg,rgba(16,22,31,.2) 0 1px,transparent 1px 7px)}
+.cl{white-space:pre;min-height:1.75em}
+.k{color:#9AA5B4;font-style:italic}.t{color:#FF7448}.c{color:#FFC53D}.s{color:#8DA2FF}.r{color:#38D39F}.n{color:#FF7448}.m{color:#8A96A6}.p{color:#E8ECF1}
+.ic{font-family:'Martian Mono',ui-monospace,monospace;font-size:.82em;background:#E3E8EE;padding:1px 5px}
+.menu{position:relative;display:flex;align-items:center;gap:6px;min-height:44px;padding:0;border:0;background:transparent;color:#10161F;font:500 15px/1 'Schibsted Grotesk',sans-serif;cursor:pointer}
+.menu::after{content:"";position:absolute;left:0;right:0;bottom:8px;height:3px;background:var(--u,#FF7448);transform:scaleX(0);transform-origin:left;transition:transform .35s cubic-bezier(.16,1,.3,1)}
+.menu:hover::after,.menu:focus-visible::after,.menu.open::after{transform:scaleX(1)}
+.menu svg{transition:transform .25s}
+@media (prefers-reduced-motion:reduce){.menu::after,.menu svg{transition:none}}
+.sub{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;padding:12px 14px;text-decoration:none;border-bottom:1px solid #E3E8EE;transition:background .15s}
+.sub:hover{background:#E3E8EE;color:#10161F}
+.sub.cur{background:#FFE8A3}
+.gbtn{display:flex;align-items:center;gap:10px;width:100%;min-height:40px;padding:0 10px;border:0;background:transparent;color:#10161F;font:700 12px/1 'Martian Mono',monospace;text-align:left;cursor:pointer;text-transform:lowercase}
+.gbtn:hover{background:#E3E8EE}
+.side{position:relative;display:block;padding:7px 10px 7px 34px;text-decoration:none;font-size:15px;line-height:1.35;color:#3C4756}
+.side:hover{background:#E3E8EE;color:#10161F}
+.side.cur{color:#10161F;font-weight:700}
+.side.cur::before{content:"";position:absolute;left:15px;top:50%;width:8px;height:8px;margin-top:-4px;background:#FF7448;outline:1px solid #10161F}
+.h2l{display:block;padding:5px 10px 5px 50px;text-decoration:none;font-size:14px;line-height:1.35;color:#3C4756}
+.h2l:hover{color:#10161F;background:#E3E8EE}
+.h2l.cur{color:#10161F;font-weight:600}
+.h3l{display:block;padding:4px 10px 4px 66px;text-decoration:none;font-size:13.5px;line-height:1.35;color:#5B6676}
+.h3l:hover{color:#10161F;background:#E3E8EE}
+.res{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;padding:12px 16px;text-decoration:none;border-bottom:1px solid #E3E8EE}
+.res:hover,.res.act{background:#E3E8EE;color:#10161F}
+.hit{background:#FFC53D;color:#10161F}
+.copy{min-height:36px;padding:0 14px;border:0;border-left:1px solid #2A3442;background:transparent;color:#B0BAC6;font:600 11px/1 'Martian Mono',monospace;cursor:pointer}
+.copy:hover{background:#FFC53D;color:#10161F}
+.toc{display:block;padding:5px 0 5px 14px;text-decoration:none;font-size:14px;line-height:1.4;color:#3C4756;border-left:1px solid #C9D2DC}
+.toc:hover{color:#10161F;border-left-color:#10161F}
+.toc.cur{color:#10161F;font-weight:600;border-left:3px solid #FF7448;padding-left:12px}
+.srch{width:100%;min-height:46px;padding:0 64px 0 42px;border:0;background:#E3E8EE;color:#10161F;font:400 15px/1 'Schibsted Grotesk',sans-serif;border-radius:0;-webkit-appearance:none;appearance:none}
+.srch::placeholder{color:#5B6676}
+.srch:focus{outline:2px solid #3050D8;outline-offset:-2px;background:#FFFFFF}
+.scrollx{overflow-x:auto;scrollbar-color:#10161F #E3E8EE;scrollbar-width:thin}
+.prose p{margin:0 0 18px}
+.mtoggle{display:none;align-items:center;gap:12px;width:100%;min-height:48px;padding:0 14px;border:0;background:#E3E8EE;color:#10161F;font:600 15px/1.2 'Schibsted Grotesk',sans-serif;text-align:left;cursor:pointer;transition:background .2s}
+.mtoggle:hover{background:#D7DEE6}
+.dh.navopen .mtoggle{background:#10161F;color:#F3F5F7}
+.dh.navopen .mtoggle .msub{color:#B0BAC6}
+.mpanel{display:none}
+@media (max-width:1180px){.rail{display:none!important}}
+@media (max-width:860px){
+.wrap{padding-left:16px!important;padding-right:16px!important}
+.dh{position:sticky!important;top:0}
+.sidewrap{display:none!important}
+.hwrap{gap:0 12px!important}
+.dh .logo{min-height:56px!important}
+.srchwrap{order:4;flex:1 1 100%!important;min-width:0;min-height:0!important;padding:0 0 10px!important}
+.srchwrap>div{max-width:none!important}
+.srch{min-width:0;height:44px;min-height:44px;padding-right:14px}
+.sicon{top:13px!important}
+.mtoggle{box-sizing:border-box;height:44px;margin-left:auto}
+.metablk+.mtoggle{margin-left:0}
+.metablk{order:2;margin-left:auto;min-height:56px!important}
+.kbd{display:none!important}
+.mtoggle{display:flex;order:3;flex:0 0 44px;width:44px;min-height:44px;padding:0;justify-content:center;align-self:center}
+.mlabel,.mchev{display:none!important}
+.dh.navopen .mpanel{display:block}
+.mpanel{position:absolute;left:0;right:0;top:100%;max-height:72vh;overflow-y:auto;overscroll-behavior:contain;padding:12px 16px 20px;background:#F3F5F7;border-bottom:1px solid #C9D2DC;box-shadow:0 18px 40px rgba(16,22,31,0.16)}
+.dh.stuck{box-shadow:0 6px 18px rgba(16,22,31,0.10)}
+.dh.stuck .hwrap{flex-wrap:nowrap!important;align-items:center!important}
+.dh.stuck .logo{min-height:56px!important}
+.dh.stuck .wordmark,.dh.stuck .metablk{display:none!important}
+.dh.stuck .srchwrap{order:2;flex:1 1 auto!important;padding:0!important}
+.prose{padding:28px 18px 48px!important}
+}
+@media (max-width:400px){.metablk{display:none!important}.mtoggle{margin-left:auto!important}}
+</style>
+<div class="rq" style="min-height: 100%; color: #10161F; font-family: 'Schibsted Grotesk', 'Helvetica Neue', Helvetica, sans-serif; font-size: 17px; line-height: 1.65; -webkit-font-smoothing: antialiased">
+
+<header class="{{hdrCls}}" style="position: relative; z-index: 5; background: #F3F5F7; border-bottom: 1px solid #C9D2DC">
+<div class="wrap hwrap" style="max-width: 1440px; margin: 0 auto; padding: 0 32px; display: flex; flex-wrap: wrap; align-items: stretch; gap: 0 24px">
+<a class="logo" href="Main.dc.html" aria-label="rustique home" style="display: flex; align-items: center; gap: 12px; min-height: 64px; text-decoration: none">
+<svg width="44" height="18" viewBox="0 0 44 18" aria-hidden="true"><rect x="0.5" y="0.5" width="43" height="17" fill="#F3F5F7" stroke="#10161F"></rect><rect x="1" y="1" width="5" height="16" fill="#FF7448"></rect><rect x="6" y="1" width="14" height="16" fill="#8DA2FF"></rect><rect x="20" y="1" width="8" height="16" fill="#FFC53D"></rect><rect x="28" y="1" width="15" height="16" fill="#38D39F"></rect><path d="M6 1v16M20 1v16M28 1v16" stroke="#10161F"></path></svg>
+<span class="wordmark" style="display: flex; align-items: baseline; gap: 10px">
+<span class="mono" style="font-size: 18px; font-weight: 700; letter-spacing: -0.02em">rustique</span>
+<span class="mono" style="font-size: 12px; color: #3C4756">docs</span>
+</span>
+</a>
+
+<div role="search" class="srchwrap" style="flex: 1 1 320px; display: flex; align-items: center; justify-content: center; min-height: 64px; padding: 8px 0">
+<div style="position: relative; width: 100%; max-width: 520px">
+<label for="docsearch" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap">Search the docs</label>
+<svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="#3C4756" stroke-width="1.5" aria-hidden="true" class="sicon" style="position: absolute; left: 14px; top: 14px"><circle cx="7" cy="7" r="5"></circle><path d="M11 11l3.5 3.5"></path></svg>
+<input id="docsearch" class="srch" type="search" autocomplete="off" placeholder="Search the docs: with_count, paginate, upsert" value="{{query}}" aria-controls="search-results" aria-expanded="{{hasQuery}}">
+<span class="mono kbd" aria-hidden="true" style="position: absolute; right: 10px; top: 11px; font-size: 12px; padding: 3px 6px; color: #3C4756; background: #F3F5F7">Ctrl K</span>
+<!-- if hasQuery -->
+<div id="search-results" role="listbox" aria-label="Search results" style="position: absolute; top: calc(100% + 8px); right: 0; width: min(620px, 92vw); background: #F3F5F7; border: 1px solid #10161F; box-shadow: 0 22px 48px rgba(16,22,31,0.22); z-index: 30">
+<div class="mono" style="display: flex; justify-content: space-between; gap: 12px; padding: 10px 16px; border-bottom: 1px solid #10161F; font-size: 12px; color: #3C4756"><span>{{resultLabel}}</span><span>↑ ↓ to move · Enter to open · Esc to close</span></div>
+<!-- for hitr in results -->
+<a class="{{hitr.cls}}" href="{{hitr.href}}" role="option" aria-selected="{{hitr.active}}">
+<span class="mono" style="align-self: start; margin-top: 3px; font-size: 11.5px; padding: 3px 6px; border: 1px solid #10161F; background: {{hitr.color}}">{{hitr.group}}</span>
+<span style="display: flex; flex-direction: column; min-width: 0">
+<span style="font-size: 13px; color: #3C4756">{{hitr.page}}</span>
+<span style="font-size: 16px; font-weight: 600; line-height: 1.35">{{hitr.pre}}<mark class="hit">{{hitr.mid}}</mark>{{hitr.post}}</span>
+<span style="font-size: 14px; line-height: 1.45; color: #3C4756">{{hitr.snip}}</span>
+</span>
+</a>
+<!-- endfor -->
+<!-- if noResults -->
+<div style="padding: 22px 16px">
+<p style="margin: 0; font-weight: 600">Nothing matches “{{query}}”.</p>
+<p style="margin: 6px 0 0; font-size: 15px; color: #3C4756">Try a method or a concept: <span class="ic">with_count</span>, <span class="ic">paginate</span>, <span class="ic">soft deletes</span>, <span class="ic">upsert</span>.</p>
+</div>
+<!-- endif -->
+</div>
+<!-- endif -->
+</div>
+</div>
+
+<div class="metablk" style="display: flex; align-items: center; min-height: 64px">
+<span style="display: flex; align-items: baseline; gap: 16px">
+<span class="mono" style="font-size: 12px; color: #5B6676">v0.2</span>
+<a href="https://github.com/Eworkssk/rustique" style="font-size: 14px">GitHub</a>
+</span>
+</div>
+
+<button type="button" class="mtoggle" aria-expanded="{{navOpen}}" aria-controls="mpanel" aria-label="Docs menu">
+<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="{{navIcon}}"></path></svg>
+<span class="mlabel" style="display: flex; flex-direction: column"><span>Docs menu</span><span class="mono msub" style="font-size: 12px; font-weight: 400; color: #3C4756">models :: relationships</span></span>
+<svg class="mchev" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true" style="margin-left: auto"><path d="{{navChev}}"></path></svg>
+</button>
+</div>
+
+<div id="mpanel" class="mpanel">
+<!-- Mobile nav panel: same group/page tree as the sidebar below, plus v0.2 + GitHub row at the bottom. -->
+</div>
+</header>
+
+<div class="wrap" style="max-width: 1440px; margin: 0 auto; padding: 0 32px; display: flex; flex-wrap: wrap; align-items: flex-start; gap: 0 48px">
+
+<aside class="sidewrap" aria-label="Docs navigation" style="flex: 1 1 260px; max-width: 300px; padding: 28px 0 48px">
+<nav id="sidetree" class="sidetree" style="display: flex; flex-direction: column; gap: 14px">
+<!-- for g in groups -->
+<div>
+<button type="button" class="gbtn" aria-expanded="{{g.expanded}}">
+<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="{{g.sideChev}}"></path></svg>
+<span aria-hidden="true" style="width: 10px; height: 10px; background: {{g.color}}; border: 1px solid #10161F"></span>
+<span>mod {{g.id}}</span>
+</button>
+<!-- if g.expanded -->
+<ul style="list-style: none; margin: 4px 0 0; padding: 0">
+<!-- for pg in g.pages -->
+<li>
+<a class="{{pg.sideCls}}" href="{{pg.href}}" aria-current="{{pg.ariaCur}}">{{pg.title}}</a>
+<!-- if pg.isCur: nested "On this page" list -->
+<ul aria-label="On this page" style="list-style: none; margin: 4px 0 8px; padding: 0">
+<!-- for h in heads -->
+<li>
+<a class="{{h.cls}}" href="{{h.href}}">{{h.title}}</a>
+<!-- if h.isOpen -->
+<ul style="list-style: none; margin: 0; padding: 0">
+<!-- for sh in h.subs --><li><a class="h3l" href="{{sh.href}}">{{sh.title}}</a></li><!-- endfor -->
+</ul>
+<!-- endif -->
+</li>
+<!-- endfor -->
+</ul>
+<!-- endif -->
+</li>
+<!-- endfor -->
+</ul>
+<!-- endif -->
+</div>
+<!-- endfor -->
+</nav>
+</aside>
+
+<main style="flex: 999 1 560px; min-width: 0; display: flex; flex-wrap: wrap; gap: 0 48px; align-items: flex-start">
+<article class="prose" style="flex: 999 1 520px; min-width: 0; max-width: 780px; background: #F3F5F7; border-left: 1px solid #10161F; border-right: 1px solid #10161F; padding: 40px clamp(20px, 4vw, 56px) 64px">
+<nav aria-label="Breadcrumb" class="mono" style="font-size: 12px; color: #3C4756; display: flex; gap: 8px; flex-wrap: wrap"><a href="Docs.dc.html" style="color: #3C4756">docs</a><span aria-hidden="true">::</span><a href="Docs.dc.html" style="color: #3C4756">models</a><span aria-hidden="true">::</span><span aria-current="page" style="color: #10161F">relationships</span></nav>
+<h1 class="mono" style="margin: 14px 0 0; font-size: clamp(32px, 3.6vw, 48px); line-height: 1.1; font-weight: 700">Relationships</h1>
+<p style="margin: 16px 0 28px; font-size: 20px; line-height: 1.5; color: #3C4756; text-wrap: pretty">A relation is a <span class="ic">Rel&lt;T&gt;</span> field with an <span class="ic">#[rustique(...)]</span> attribute. It is not a column.</p>
+
+<div class="mono" style="background: #10161F; color: #E8ECF1; border: 1px solid #10161F; margin: 0 0 22px">
+<div style="display: flex; justify-content: space-between; align-items: center; padding-left: 16px; border-bottom: 1px solid #2A3442; font-size: 12px; color: #8A96A6"><span>rust · compiles as a doctest</span><button class="copy" type="button">{{copyALabel}}</button></div>
+<div class="scrollx" style="padding: 16px 20px; font-size: 13px; line-height: 1.75">
+<div class="cl"><span class="m">#[rustique::model(table = "users")]</span></div>
+<div class="cl"><span class="m">#[derive(Debug, Clone, Default)]</span></div>
+<div class="cl"><span class="k">pub struct</span><span class="t"> User</span><span class="p"> {</span></div>
+<div class="cl"><span class="k">    pub</span><span class="p"> id: </span><span class="n">i64</span><span class="p">,</span></div>
+<div class="cl"><span class="k">    pub</span><span class="p"> country_id: </span><span class="n">i64</span><span class="p">,</span></div>
+<div class="cl"><span class="m">    #[rustique(belongs_to(Country))]</span></div>
+<div class="cl"><span class="k">    pub</span><span class="p"> country: </span><span class="r">Rel</span><span class="p">&lt;</span><span class="c">Option</span><span class="p">&lt;Country&gt;&gt;,</span></div>
+<div class="cl"><span class="m">    #[rustique(has_one(Profile))]</span></div>
+<div class="cl"><span class="k">    pub</span><span class="p"> profile: </span><span class="r">Rel</span><span class="p">&lt;</span><span class="c">Option</span><span class="p">&lt;Profile&gt;&gt;,</span></div>
+<div class="cl"><span class="m">    #[rustique(has_many(Post))]</span></div>
+<div class="cl"><span class="k">    pub</span><span class="p"> posts: </span><span class="r">Rel</span><span class="p">&lt;</span><span class="r">Vec</span><span class="p">&lt;Post&gt;&gt;,</span></div>
+<div class="cl"><span class="m">    #[rustique(belongs_to_many(Role))]</span></div>
+<div class="cl"><span class="k">    pub</span><span class="p"> roles: </span><span class="r">Rel</span><span class="p">&lt;</span><span class="r">Vec</span><span class="p">&lt;Role&gt;&gt;,</span></div>
+<div class="cl"><span class="p">}</span></div>
+</div>
+</div>
+
+<p style="text-wrap: pretty"><span class="ic">Rel&lt;T&gt;</span> is either <span class="ic">NotLoaded</span> or <span class="ic">Loaded(T)</span>. Rust cannot run a query on field access (that needs <span class="ic">async</span> and a connection), so loading is always explicit.</p>
+
+<div class="scrollx" style="margin: 0 0 18px">
+<table style="width: 100%; border-collapse: collapse; font-size: 15px; overflow-wrap: anywhere">
+<thead><tr class="mono" style="font-size: 12px; text-align: left"><th scope="col" style="padding: 9px 12px; border: 1px solid #10161F; background: #E3E8EE; font-weight: 600">Use</th><th scope="col" style="padding: 9px 12px; border: 1px solid #10161F; background: #E3E8EE; font-weight: 600">Field type</th></tr></thead>
+<tbody>
+<tr><td style="padding: 9px 12px; border: 1px solid #10161F"><span class="ic">has_one</span>, <span class="ic">belongs_to</span>, <span class="ic">morph_one</span></td><td style="padding: 9px 12px; border: 1px solid #10161F; background: #FFE8A3"><span class="mono" style="font-size: 12.5px">Rel&lt;Option&lt;T&gt;&gt;</span>, or <span class="mono" style="font-size: 12.5px">Rel&lt;Option&lt;Box&lt;T&gt;&gt;&gt;</span> when types nest in a cycle</td></tr>
+<tr><td style="padding: 9px 12px; border: 1px solid #10161F"><span class="ic">has_many</span>, <span class="ic">belongs_to_many</span>, <span class="ic">has_many_through</span>, <span class="ic">morph_many</span></td><td style="padding: 9px 12px; border: 1px solid #10161F; background: #CFF3E3"><span class="mono" style="font-size: 12.5px">Rel&lt;Vec&lt;T&gt;&gt;</span></td></tr>
+<tr><td style="padding: 9px 12px; border: 1px solid #10161F"><span class="ic">morph_to</span></td><td style="padding: 9px 12px; border: 1px solid #10161F; background: #FFE8A3"><span class="mono" style="font-size: 12.5px">Rel&lt;Option&lt;E&gt;&gt;</span>, <span class="mono" style="font-size: 12.5px">E</span> an enum deriving <span class="mono" style="font-size: 12.5px">rustique::MorphTo</span></td></tr>
+<tr><td style="padding: 9px 12px; border: 1px solid #10161F"><span class="ic">count</span></td><td style="padding: 9px 12px; border: 1px solid #10161F; background: #FFD9CB"><span class="mono" style="font-size: 12.5px">Rel&lt;u64&gt;</span></td></tr>
+</tbody>
+</table>
+</div>
+<p>Related models must implement <span class="ic">Clone</span>.</p>
+
+<h2 id="reading-a-relation" class="mono" style="margin: 52px 0 14px; font-size: 24px; line-height: 1.25; font-weight: 700">Reading a relation</h2>
+<div class="mono" style="background: #10161F; color: #E8ECF1; border: 1px solid #10161F; margin: 0 0 22px">
+<div class="scrollx" style="padding: 16px 20px; font-size: 13px; line-height: 1.75">
+<div class="cl"><span class="p">user.posts.loaded()?;   </span><span class="m">// &amp;Vec&lt;Post&gt;; Err(Error::RelationNotLoaded) if not loaded</span></div>
+<div class="cl"><span class="p">user.posts.get();       </span><span class="m">// Option&lt;&amp;Vec&lt;Post&gt;&gt;</span></div>
+<div class="cl"><span class="p">user.posts.is_loaded(); </span><span class="m">// bool</span></div>
+</div>
+</div>
+
+<h2 id="three-ways-to-load" class="mono" style="margin: 52px 0 14px; font-size: 24px; line-height: 1.25; font-weight: 700">Three ways to load</h2>
+<div class="mono" style="background: #10161F; color: #E8ECF1; border: 1px solid #10161F; margin: 0 0 22px">
+<div style="display: flex; justify-content: space-between; align-items: center; padding-left: 16px; border-bottom: 1px solid #2A3442; font-size: 12px; color: #8A96A6"><span>rust · compiles as a doctest</span><button class="copy" type="button">{{copyBLabel}}</button></div>
+<div class="scrollx" style="padding: 16px 20px; font-size: 13px; line-height: 1.75">
+<div class="cl"><span class="m">// 1. Eager, on the query: one extra query per relation level</span></div>
+<div class="cl"><span class="k">let</span><span class="p"> users = </span><span class="t">User</span><span class="p">::query().with(</span><span class="r">"posts"</span><span class="p">).with(</span><span class="r">"country"</span><span class="p">).get(&amp;db).</span><span class="k">await</span><span class="p">?;</span></div>
+<div class="cl"><span class="k">let mut</span><span class="p"> users = </span><span class="t">User</span><span class="p">::query().with(</span><span class="r">"posts.comments"</span><span class="p">).get(&amp;db).</span><span class="k">await</span><span class="p">?; </span><span class="m">// nested</span></div>
+<div class="cl"><span class="p"> </span></div>
+<div class="cl"><span class="m">// 2. Eager, after the fact</span></div>
+<div class="cl"><span class="p">user.load(&amp;db, </span><span class="r">"posts.comments"</span><span class="p">).</span><span class="k">await</span><span class="p">?;  </span><span class="m">// one model</span></div>
+<div class="cl"><span class="p">users.load(&amp;db, </span><span class="r">"posts"</span><span class="p">).</span><span class="k">await</span><span class="p">?;          </span><span class="m">// a Collection&lt;User&gt;</span></div>
+<div class="cl"><span class="p"> </span></div>
+<div class="cl"><span class="m">// 3. Lazy: the generated method returns a Query&lt;Post&gt;</span></div>
+<div class="cl"><span class="k">let</span><span class="p"> recent = user.posts().order_by_desc(</span><span class="s">"id"</span><span class="p">).limit(</span><span class="n">5</span><span class="p">).get(&amp;db).</span><span class="k">await</span><span class="p">?;</span></div>
+</div>
+</div>
+<p style="text-wrap: pretty"><span class="ic">with("posts.comments")</span> runs 3 statements: the users, their posts, the posts' comments. On both databases each relation query takes at most 1000 parent keys, so a level with more parents runs one statement per 1000 of them.</p>
+
+<figure style="margin: 8px 0 26px" aria-label="Query plan for with posts.comments: three statements, one per level">
+<div class="mono cond" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(170px, 100%), 1fr)); border: 1px solid #10161F; font-size: 12px">
+<div style="display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; border-right: 1px solid #10161F; background: #FFD9CB"><span style="font-size: 11.5px; color: #3C4756">statement 1</span><b style="font-size: 13px">users</b><span>Vec&lt;User&gt;</span></div>
+<div style="display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; border-right: 1px solid #10161F; background: #CFF3E3"><span style="font-size: 11.5px; color: #3C4756">statement 2 · ≤1000 keys each</span><b style="font-size: 13px">posts</b><span>WHERE user_id IN (…)</span></div>
+<div style="display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; background: #CFF3E3"><span style="font-size: 11.5px; color: #3C4756">statement 3 · ≤1000 keys each</span><b style="font-size: 13px">comments</b><span>WHERE post_id IN (…)</span></div>
+</div>
+</figure>
+
+<h3 id="constraining-eager-loads" class="mono" style="margin: 40px 0 12px; font-size: 18px; line-height: 1.3; font-weight: 700">Constraining eager loads</h3>
+<p style="text-wrap: pretty"><span class="ic">with_where</span> is Laravel's <span class="ic">with(['posts' =&gt; fn ($q) =&gt; ...])</span>:</p>
+<div class="mono" style="background: #10161F; color: #E8ECF1; border: 1px solid #10161F; margin: 0 0 22px">
+<div class="scrollx" style="padding: 16px 20px; font-size: 13px; line-height: 1.75">
+<div class="cl"><span class="k">let</span><span class="p"> users = </span><span class="t">User</span><span class="p">::query()</span></div>
+<div class="cl"><span class="p">    .with_where(</span><span class="r">"posts"</span><span class="p">, |q| q.where_(</span><span class="s">"published"</span><span class="p">, </span><span class="s">"="</span><span class="p">, </span><span class="k">true</span><span class="p">).order_by_desc(</span><span class="s">"id"</span><span class="p">))</span></div>
+<div class="cl"><span class="p">    .with_where(</span><span class="r">"posts.comments"</span><span class="p">, |q| q.limit(</span><span class="n">100</span><span class="p">))</span></div>
+<div class="cl"><span class="p">    .get(&amp;db)</span></div>
+<div class="cl"><span class="p">    .</span><span class="k">await</span><span class="p">?;</span></div>
+</div>
+</div>
+<p style="text-wrap: pretty">The closure gets the related query as a <span class="ic">QueryBuilder</span>. Its conditions are grouped, so an <span class="ic">OR</span> cannot escape the key filter. The query runs once for all parents; a <span class="ic">limit</span> or <span class="ic">offset</span> still applies per parent, as in Eloquent.</p>
+
+<h3 id="catching-n-plus-1" class="mono" style="margin: 40px 0 12px; font-size: 18px; line-height: 1.3; font-weight: 700">Catching N+1 queries</h3>
+<p style="text-wrap: pretty">A lazy relation query in a loop over query results is one query per model. <span class="ic">prevent_lazy_loading</span> flags it, like Eloquent's <span class="ic">preventLazyLoading</span>:</p>
+<div class="mono" style="background: #10161F; color: #E8ECF1; border: 1px solid #10161F; margin: 0 0 22px">
+<div class="scrollx" style="padding: 16px 20px; font-size: 13px; line-height: 1.75">
+<div class="cl"><span class="p">rustique::prevent_lazy_loading(</span><span class="k">if</span><span class="p"> cfg!(debug_assertions) {</span></div>
+<div class="cl"><span class="p">    rustique::</span><span class="t">LazyLoading</span><span class="p">::</span><span class="c">Deny</span><span class="m">    // the relation query fails with Error::InvalidQuery</span></div>
+<div class="cl"><span class="p">} </span><span class="k">else</span><span class="p"> {</span></div>
+<div class="cl"><span class="p">    rustique::</span><span class="t">LazyLoading</span><span class="p">::</span><span class="c">Allow</span><span class="m">   // the default; Warn logs to target rustique::lazy</span></div>
+<div class="cl"><span class="p">});</span></div>
+</div>
+</div>
+<div style="display: flex; align-items: stretch; border: 1px solid #10161F; margin: 0 0 18px">
+<span class="mono" style="flex: 0 0 auto; display: flex; align-items: flex-start; padding: 14px 12px; background: #FFC53D; border-right: 1px solid #10161F; font-size: 12px; font-weight: 700">note</span>
+<p style="margin: 0; padding: 12px 16px; font-size: 15.5px; line-height: 1.55; text-wrap: pretty">Only models loaded together with others are flagged (<span class="ic">get</span>, <span class="ic">paginate</span>, chunks, cursors, eager loads). A model from <span class="ic">find</span> or <span class="ic">first</span> can query its relations freely, and <span class="ic">load</span> / <span class="ic">with</span> are never flagged.</p>
+</div>
+
+<h2 id="relation-types-and-keys" class="mono" style="margin: 52px 0 14px; font-size: 24px; line-height: 1.25; font-weight: 700">Relation types and keys</h2>
+<p style="text-wrap: pretty">Default keys follow Laravel: <span class="ic">has_many(Post)</span> on <span class="ic">User</span> matches <span class="ic">posts.user_id</span> to <span class="ic">users.id</span>. Override any of them in the attribute, as in <span class="ic">has_many(Post, foreign_key = "author_id", local_key = "id")</span>.</p>
+
+<nav aria-label="Previous and next page" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 1px; margin-top: 56px; border: 1px solid #10161F; background: #10161F">
+<a href="Docs.dc.html" style="display: flex; flex-direction: column; gap: 4px; padding: 16px 18px; text-decoration: none; background: #F3F5F7"><span class="mono" style="font-size: 12px; color: #5B6676">← prev</span><span style="font-weight: 600">Models</span></a>
+<a href="Docs.dc.html" style="display: flex; flex-direction: column; gap: 4px; padding: 16px 18px; text-decoration: none; text-align: right; background: #FFD9CB"><span class="mono" style="font-size: 12px; color: #3C4756">next →</span><span style="font-weight: 600">Casts</span></a>
+</nav>
+</article>
+
+<aside class="rail" aria-label="On this page" style="flex: 1 1 200px; max-width: 240px; padding: 44px 0 48px">
+<p class="mono" style="margin: 0 0 12px; font-size: 12px; color: #3C4756">on this page</p>
+<nav style="display: flex; flex-direction: column">
+<!-- for h in heads --><a class="{{h.tocCls}}" href="{{h.href}}">{{h.title}}</a><!-- endfor -->
+</nav>
+<div style="margin-top: 28px; padding-top: 18px; border-top: 1px solid #C9D2DC; display: flex; flex-direction: column; gap: 10px; font-size: 14px">
+<a href="https://github.com/Eworkssk/rustique/blob/main/rustique/docs/relationships.md">Edit this page on GitHub</a>
+<a href="https://github.com/Eworkssk/rustique/blob/main/rustique/docs/eloquent-compatibility.md">Eloquent compatibility</a>
+</div>
+</aside>
+</main>
+</div>
+</div>
+
+<script type="text/x-dc">
+class Component extends DCLogic {
+  constructor(...args) {
+    super(...args);
+    this.state = { query: '', collapsed: {}, active: 0, copied: '' };
+  }
+  componentDidMount() {
+    // header gets class "stuck" after scrolling >80px (compact: hides wordmark + meta, search takes the row); unstuck under 8px
+  }
+  data() {
+    return [
+      { id: 'start', name: 'Start', color: '#FFC53D', pages: [
+        ['Getting started', 'Install, features, connecting, pool and TLS', ['Install', 'Connecting', 'Pool settings and TLS', 'A first model']],
+        ['Cheat sheet', 'Every everyday call on one page', ['Cheat sheet']],
+        ['Eloquent compatibility', 'What maps to Laravel, what does not', ['Relations', 'Models', 'Query builder', 'Schema and migrations']],
+        ['Database differences', 'What changes between MySQL and Oracle', ['Oracle notes', 'MySQL notes', 'Branching on the database']]
+      ] },
+      { id: 'query', name: 'Querying', color: '#8DA2FF', pages: [
+        ['Query builder', 'Selects, wheres, joins, aggregates, writes', ['Where clauses', 'Dates and JSON', 'Sub-queries and exists', 'Joins', 'Unions', 'Locking', 'Upsert', 'Seeing the SQL']],
+        ['Pagination, chunking and cursors', 'Working with big tables', ['Pagination', 'Cursor pagination', 'Chunking', 'Cursors']],
+        ['Transactions and raw SQL', 'Replicas, nested transactions, retries, logging', ['Read replicas', 'Transactions', 'Deadlock retries', 'Savepoints', 'Raw SQL', 'Query logging']]
+      ] },
+      { id: 'models', name: 'Models', color: '#FF7448', pages: [
+        ['Models', 'Retrieving, saving, timestamps, soft deletes, dirty tracking', ['Defining models', 'Primary keys', 'Dirty tracking', 'Mass assignment', 'Bulk insert and upsert', 'Soft deletes', 'Timestamps']],
+        ['Relationships', 'All relation kinds, eager loading, pivots', []],
+        ['Casts', 'Cast, FromValue, custom types', ['Built-in types', 'derive(rustique::Cast)', 'Hand-written casts']],
+        ['Scopes, hooks and observers', 'Reusable filters and lifecycle events', ['Local scopes', 'Global scopes', 'Hooks (model events)', 'Observers']]
+      ] },
+      { id: 'schema', name: 'Schema', color: '#38D39F', pages: [
+        ['Schema and migrations', 'Schema builder, Migrator, CLI', ['Column types', 'Indexes and foreign keys', 'Migrations', 'Seeders', 'CLI', 'Compile-time schema check']],
+        ['Factories', 'Test data and seeding', ['Making and creating', 'States and sequences', 'Relationships', 'Callbacks']]
+      ] }
+    ];
+  }
+  heads() {
+    return [
+      { title: 'Reading a relation', id: 'reading-a-relation', subs: [] },
+      { title: 'Three ways to load', id: 'three-ways-to-load', subs: [['Constraining eager loads', 'constraining-eager-loads'], ['Typed constraints', 'three-ways-to-load'], ['Selecting columns', 'three-ways-to-load'], ['Catching N+1 queries', 'catching-n-plus-1']] },
+      { title: 'Relation types and keys', id: 'relation-types-and-keys', subs: [] },
+      { title: 'Polymorphic relations', id: 'relation-types-and-keys', subs: [] },
+      { title: 'Querying relation existence', id: 'relation-types-and-keys', subs: [] },
+      { title: 'Counting and aggregating', id: 'relation-types-and-keys', subs: [] }
+    ];
+  }
+  // search(): all terms must match title+page+snippet (case-insensitive); score 3 for title prefix, 2 for title substring;
+  // top 7 results; result chip shows group id with group color; first term highlighted with <mark class="hit">.
+  // Keyboard: ArrowUp/Down move active, Enter opens, Escape clears.
+  // Sidebar: group chevron 'M3 4.5l3 3 3-3' (expanded) / 'M4.5 3l3 3-3 3' (collapsed); current page gets .side.cur and
+  // its "On this page" h2 list (.h2l, .h2l.cur with .h3l subs when open). Right rail uses .toc / .toc.cur.
+  // Mobile toggle icon: hamburger 'M3 5h12M3 9h12M3 13h12' / close 'M4 4l10 10M14 4L4 14'.
+}
+</script>
+</body></html>

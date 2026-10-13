@@ -1,0 +1,161 @@
+---
+import Base from '../layouts/Base.astro';
+import LandingHeader from '../components/LandingHeader.astro';
+import Hero from '../components/landing/Hero.astro';
+import Dialects from '../components/landing/Dialects.astro';
+import Bench from '../components/landing/Bench.astro';
+import Features from '../components/landing/Features.astro';
+import { INSTALL, surface } from '../data/landing';
+import { GITHUB } from '../data/docs';
+import '../styles/landing.css';
+
+const constants: [string, string][] = [
+  ['User::ID', '#FF7448'],
+  ['User::NAME', '#8DA2FF'],
+  ['User::EMAIL', '#8DA2FF'],
+  ['User::CREATED_AT', '#FFC53D'],
+  ['User::POSTS', '#38D39F'],
+];
+const plan = [
+  { n: 1, name: 'users', sql: 'SELECT * FROM `users`', tag: 'Vec<User>', bg: '#FF7448' },
+  { n: 2, name: 'users.posts', sql: 'SELECT * FROM `posts` WHERE `posts`.`user_id` IN (?, ?, …)', tag: 'Rel<Vec<Post>>', bg: '#38D39F' },
+  { n: 3, name: 'posts.comments', sql: 'SELECT * FROM `comments` WHERE `comments`.`post_id` IN (?, ?, …)', tag: 'Rel<Vec<Comment>>', bg: '#38D39F' },
+];
+const relTypes: [string, string, string][] = [
+  ['has_one · belongs_to', 'Rel<Option<T>>', '#FFC53D'],
+  ['has_many · belongs_to_many · has_many_through', 'Rel<Vec<T>>', '#38D39F'],
+  ['morph_to', 'Rel<Option<E>>', '#FFC53D'],
+  ['with_count', 'Rel<u64>', '#FF7448'],
+];
+---
+<Base title="rustique: Eloquent-style ORM for Rust" description="Rustique is an active-record ORM for Rust with the API you know from Laravel: models, a fluent query builder, relations, migrations and factories. MySQL and Oracle.">
+<LandingHeader />
+
+<main id="top">
+<Hero />
+
+<section class="wrap" style="max-width: 1280px; margin: 0 auto; padding: 136px 32px 0">
+<div style="display: flex; flex-wrap: wrap; gap: 40px 64px; align-items: flex-start">
+<div style="flex: 5 1 380px; min-width: 0">
+<h2 class="mono" style="margin: 0; font-size: clamp(26px, 3vw, 40px); line-height: 1.15; font-weight: 700; text-wrap: balance">A typo in a column name fails the build.</h2>
+<p style="margin: 20px 0 0; max-width: 52ch; color: #3C4756; text-wrap: pretty"><code class="mono" style="font-size: 14px; color: #10161F">#[rustique::model]</code> gives every column a constant and every relation a typed name. Pass them to the query builder and a misspelling is a compiler error with a suggestion, not an <code class="mono" style="font-size: 14px; color: #10161F">Unknown column</code> at runtime.</p>
+<div class="mono cond" style="margin-top: 32px; display: flex; flex-wrap: wrap; border: 1px solid #10161F; border-right: 0; font-size: 12.5px; background: #F3F5F7">
+{constants.map(([c, bg]) => <span style={`padding: 10px 12px; border-right: 1px solid #10161F; background: ${bg}`}>{c}</span>)}
+<span class="hatch" style="padding: 10px 12px; border-right: 1px solid #10161F; text-decoration: line-through; text-decoration-color: #C2401A; text-decoration-thickness: 2px; color: #10161F">User::EMIAL</span>
+</div>
+<p class="mono" style="margin: 10px 0 0; font-size: 12px; color: #5B6676">Generated constants. The last one does not exist.</p>
+</div>
+<div class="mono" style="flex: 7 1 520px; min-width: 0; background: #10161F; color: #E8ECF1; border: 1px solid #10161F">
+<div style="display: flex; justify-content: space-between; padding: 10px 16px; border-bottom: 1px solid #2A3442; font-size: 12px; color: #8A96A6"><span>cargo build</span><span style="color: #FF7448">error</span></div>
+<div class="scrollx" style="padding: 18px 20px 6px; font-size: 13px; line-height: 1.7">
+<div class="cl"><span class="t">User</span><span class="p">::query()</span></div>
+<div class="cl"><span class="p">    .where_(</span><span class="t">User</span><span class="p">::</span><span class="typo">EMIAL</span><span class="p">, </span><span class="s">"like"</span><span class="p">, </span><span class="s">"%@example.com"</span><span class="p">)</span></div>
+</div>
+<div class="scrollx" style="padding: 10px 20px 20px; font-size: 12px; line-height: 1.65; border-top: 1px dashed #2A3442">
+<div class="cl"><span style="color: #FF7448; font-weight: 700">error[E0599]</span><span style="font-weight: 700">: no associated item named `EMIAL` found for struct `User`</span></div>
+<div class="cl"><span style="color: #8DA2FF"> --&gt; </span><span class="m">src/main.rs:3:19</span></div>
+<div class="cl"><span style="color: #8DA2FF">  |</span></div>
+<div class="cl"><span style="color: #8DA2FF">3 |</span><span class="p">     .where_(User::EMIAL, "like", "%@example.com")</span></div>
+<div class="cl"><span style="color: #8DA2FF">  |</span><span style="color: #FF7448">                   ^^^^^ associated item not found in `User`</span></div>
+<div class="cl"><span style="color: #8DA2FF">  |</span></div>
+<div class="cl"><span style="color: #38D39F; font-weight: 700">help</span><span>: there is an associated constant `EMAIL` with a similar name</span></div>
+<div class="cl"><span style="color: #8DA2FF">  |</span></div>
+<div class="cl"><span style="color: #8DA2FF">3 |</span><span class="p">     .where_(User::</span><span style="color: #38D39F">EMAIL</span><span class="p">, "like", "%@example.com")</span></div>
+</div>
+</div>
+</div>
+</section>
+
+<Dialects />
+
+<section class="wrap" style="max-width: 1280px; margin: 0 auto; padding: 136px 32px 0">
+<div style="display: flex; flex-wrap: wrap; gap: 48px 64px">
+<div style="flex: 5 1 380px; min-width: 0">
+<h2 class="mono" style="margin: 0; font-size: clamp(26px, 3vw, 40px); line-height: 1.15; font-weight: 700; text-wrap: balance">Relations are fields. Loading is explicit.</h2>
+<p style="margin: 20px 0 0; max-width: 52ch; color: #3C4756; text-wrap: pretty">A relation is a <code class="mono" style="font-size: 14px; color: #10161F">Rel&lt;T&gt;</code> field with an attribute, not a column. Eager-load a nested path and Rustique runs one statement per level. Turn on <code class="mono" style="font-size: 14px; color: #10161F">prevent_lazy_loading</code> in debug builds and an accidental N+1 becomes an error.</p>
+<div class="mono" style="margin-top: 28px; border: 1px solid #10161F; background: #F3F5F7; font-size: 12.5px">
+<div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); background: #E3E8EE; border-bottom: 1px solid #10161F; font-size: 12px"><span style="padding: 8px 12px; border-right: 1px solid #10161F">relation</span><span style="padding: 8px 12px">field type</span></div>
+{relTypes.map(([rel, type, bg], i) => (
+<div style={`display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr)${i < relTypes.length - 1 ? '; border-bottom: 1px solid #10161F' : ''}`}><span style="padding: 10px 12px; border-right: 1px solid #10161F">{rel}</span><span style={`padding: 10px 12px; background: ${bg}`}>{type}</span></div>
+))}
+</div>
+</div>
+
+<div style="flex: 7 1 520px; min-width: 0">
+<div class="mono" style="background: #10161F; color: #E8ECF1; padding: 16px 20px; font-size: 13.5px; border: 1px solid #10161F">
+<div class="cl scrollx"><span class="t">User</span><span class="p">::query().with(</span><span class="r">"posts.comments"</span><span class="p">).get(&amp;db).</span><span class="k">await</span><span class="p">?;</span></div>
+</div>
+<ol class="plan" style="list-style: none; margin: 0; padding: 0">
+{plan.map((s, i) => (
+<li style={`position: relative; display: flex; align-items: stretch; margin: 28px 0 0 ${i * 56}px; border: 1px solid #10161F; background: #F3F5F7`}>
+{i > 0 && <span aria-hidden="true" style="position: absolute; left: -29px; top: -29px; width: 19px; height: calc(50% + 29px); border-left: 2px solid #0E7A55; border-bottom: 2px solid #0E7A55"></span>}
+{i > 0 && <span aria-hidden="true" style="position: absolute; left: -10px; top: calc(50% - 5px); width: 0; height: 0; border-top: 6px solid transparent; border-bottom: 6px solid transparent; border-left: 9px solid #0E7A55"></span>}
+<span class="mono" style="display: flex; align-items: center; justify-content: center; flex: 0 0 56px; background: #10161F; color: #F3F5F7; font-weight: 700; font-size: 14px" aria-label={`Statement ${s.n}`}>{s.n}</span>
+<div style="flex: 1 1 auto; min-width: 0; padding: 14px 18px"><p class="mono" style="margin: 0; font-size: 13px; font-weight: 700">{s.name}</p><p class="mono cond" style="margin: 4px 0 0; font-size: 12px; color: #3C4756; overflow-wrap: anywhere">{s.sql}</p></div>
+<span class="mono ptag" style={`display: flex; align-items: center; padding: 0 16px; border-left: 1px solid #10161F; background: ${s.bg}; font-size: 12px; white-space: nowrap`}>{s.tag}</span>
+</li>
+))}
+</ol>
+<p style="margin: 18px 0 0; font-size: 15px; color: #3C4756">Three statements for any number of users. Each level batches up to 1000 parent keys per statement.</p>
+</div>
+</div>
+</section>
+
+<Bench />
+
+<section class="wrap" style="max-width: 1280px; margin: 0 auto; padding: 136px 32px 0">
+<h2 class="mono" style="margin: 0; font-size: clamp(26px, 3vw, 40px); line-height: 1.15; font-weight: 700">The rest of the surface, field by field.</h2>
+<div class="mono" style="margin-top: 32px; border: 1px solid #10161F; background: #F3F5F7">
+<p style="margin: 0; padding: 14px 18px; border-bottom: 1px solid #10161F; font-size: 14px"><span class="k" style="color: #5B6676">pub struct</span> <span style="color: #C2401A; font-weight: 700">Rustique</span> &#123;</p>
+{surface.map(([off, name, tag, bg, desc, slug]) => (
+<a href={`/docs/${slug}/`} class="drow" style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 20px; padding: 16px 18px; border-bottom: 1px solid #10161F; text-decoration: none">
+<span style="flex: 0 0 64px; font-size: 12px; color: #5B6676">{off}</span><span style="flex: 0 0 150px; font-size: 14px; font-weight: 700">{name}</span><span style="flex: 0 0 200px; font-size: 12.5px"><span style={`background: ${bg}; padding: 3px 8px${bg === '#10161F' ? '; color: #F3F5F7' : ''}`}>{tag}</span></span><span style="flex: 1 1 340px; font-family: var(--sans); font-size: 16px; color: #3C4756">{desc}</span></a>
+))}
+<p style="margin: 0; padding: 14px 18px; font-size: 14px">&#125;</p>
+</div>
+</section>
+
+<Features />
+
+<section class="wrap" style="max-width: 1280px; margin: 0 auto; padding: 160px 32px 0">
+<div style="border: 1px solid #10161F; background: #10161F; color: #F3F5F7">
+<div class="mono" aria-hidden="true" style="display: grid; grid-template-columns: 8fr 24fr 12fr 24fr; height: 14px; border-bottom: 1px solid #10161F"><span style="background: #FF7448; border-right: 1px solid #10161F"></span><span style="background: #8DA2FF; border-right: 1px solid #10161F"></span><span style="background: #FFC53D; border-right: 1px solid #10161F"></span><span style="background: #38D39F"></span></div>
+<div style="padding: clamp(32px, 5vw, 72px); display: flex; flex-wrap: wrap; gap: 32px 48px; align-items: flex-end; justify-content: space-between">
+<div style="flex: 1 1 520px; min-width: 0">
+<p class="mono" style="margin: 0; font-size: clamp(28px, 4vw, 56px); line-height: 1.1; font-weight: 700; text-wrap: balance">Your models are already structs.</p>
+<p style="margin: 18px 0 0; max-width: 54ch; color: #B0BAC6">Bring your Eloquent habits. Rust brings the compiler: misspelled columns fail the build, eager loads stay one query per level, and the same code runs on MySQL and Oracle.</p>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 14px">
+<div class="inst" style="display: flex; align-items: stretch; border: 1px solid #F3F5F7">
+<code class="mono" style="display: flex; align-items: center; padding: 0 18px; font-size: 15px; white-space: nowrap">{INSTALL}</code>
+<button class="copy" type="button" data-copy={INSTALL} aria-label="Copy install command">Copy</button>
+</div>
+<a class="btn" href="/docs/" style="background: #F3F5F7; color: #10161F; border-color: #F3F5F7">Read the docs</a>
+</div>
+</div>
+</div>
+</section>
+</main>
+
+<footer class="wrap" style="max-width: 1280px; margin: 0 auto; padding: 40px 32px 56px; display: flex; flex-wrap: wrap; gap: 16px 32px; justify-content: space-between; font-size: 14px; color: #3C4756">
+<p style="margin: 0">MIT or Apache-2.0, at your option.</p>
+<nav aria-label="Footer" style="display: flex; flex-wrap: wrap; gap: 8px 24px">
+<a href="/docs/">Docs</a>
+<a href={GITHUB}>GitHub</a>
+<a href="https://crates.io/crates/rustique-orm">crates.io</a>
+<a href={`${GITHUB}/blob/main/bench/README.md`}>Benchmarks</a>
+</nav>
+</footer>
+</Base>
+
+<script>
+  // Copy buttons carry their text in data-copy; the label flips to "Copied" for 1.6s.
+  document.addEventListener('click', (e) => {
+    const btn = (e.target as Element).closest<HTMLButtonElement>('button[data-copy]');
+    if (!btn) return;
+    navigator.clipboard?.writeText(btn.dataset.copy!).catch(() => {});
+    btn.textContent = 'Copied';
+    clearTimeout(Number(btn.dataset.t));
+    btn.dataset.t = String(setTimeout(() => (btn.textContent = 'Copy'), 1600));
+  });
+</script>

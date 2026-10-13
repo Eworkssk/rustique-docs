@@ -1,0 +1,108 @@
+---
+import { render } from 'astro:content';
+import Base from './Base.astro';
+import DocsHeader from '../components/docs/DocsHeader.astro';
+import Sidebar, { type Head } from '../components/docs/Sidebar.astro';
+import { EDIT_BASE, orderedDocs, type Doc } from '../data/docs';
+import '../styles/docs.css';
+
+interface Props {
+  entry: Doc;
+  // /docs/ renders the first page again; keep it out of the search index to avoid duplicates.
+  noindex?: boolean;
+}
+const { entry, noindex } = Astro.props;
+const docs = await orderedDocs();
+const { Content, headings } = await render(entry);
+
+// h2 headings with their h3 children, for the sidebar's "on this page" tree and the rail.
+const heads: Head[] = [];
+for (const h of headings) {
+  if (h.depth === 2) heads.push({ slug: h.slug, text: h.text, subs: [] });
+  else if (h.depth === 3) heads.at(-1)?.subs.push({ slug: h.slug, text: h.text });
+}
+
+const i = docs.findIndex((d) => d.id === entry.id);
+const prev = docs[i - 1];
+const next = docs[i + 1];
+const groupHome = docs.find((d) => d.data.group === entry.data.group)!;
+const source = entry.data.source ?? `${entry.id}.md`;
+---
+<Base title={`${entry.data.title} · rustique docs`} description={entry.data.description}>
+<DocsHeader docs={docs} entry={entry} heads={heads} />
+
+<div class="wrap" style="max-width: 1440px; margin: 0 auto; padding: 0 32px; display: flex; flex-wrap: wrap; align-items: flex-start; gap: 0 48px">
+
+<aside class="sidewrap" aria-label="Docs navigation" style="flex: 1 1 260px; max-width: 300px; padding: 28px 0 48px; position: sticky; top: 65px; max-height: calc(100vh - 65px); overflow-y: auto; scrollbar-width: thin">
+<Sidebar docs={docs} current={entry.id} heads={heads} />
+</aside>
+
+<main style="flex: 999 1 560px; min-width: 0; display: flex; flex-wrap: wrap; gap: 0 48px; align-items: flex-start">
+<article class="prose" data-pagefind-body={noindex ? undefined : ""} data-pagefind-meta={`group:${entry.data.group}`} style="flex: 999 1 520px; min-width: 0; max-width: 780px; background: #F3F5F7; border-left: 1px solid #10161F; border-right: 1px solid #10161F; padding: 40px clamp(20px, 4vw, 56px) 64px">
+<nav aria-label="Breadcrumb" class="mono" data-pagefind-ignore style="font-size: 12px; color: #3C4756; display: flex; gap: 8px; flex-wrap: wrap"><a href="/docs/" style="color: #3C4756">docs</a><span aria-hidden="true">::</span><a href={`/docs/${groupHome.id}/`} style="color: #3C4756">{entry.data.group}</a><span aria-hidden="true">::</span><span aria-current="page" style="color: #10161F">{entry.id}</span></nav>
+<h1 class="mono" style="margin: 14px 0 0; font-size: clamp(32px, 3.6vw, 48px); line-height: 1.1; font-weight: 700">{entry.data.title}</h1>
+<p class="lead">{entry.data.description}</p>
+
+<Content />
+
+<nav aria-label="Previous and next page" data-pagefind-ignore style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 1px; margin-top: 56px; border: 1px solid #10161F; background: #10161F">
+{prev && <a href={`/docs/${prev.id}/`} rel="prev" style="display: flex; flex-direction: column; gap: 4px; padding: 16px 18px; text-decoration: none; background: #F3F5F7"><span class="mono" style="font-size: 12px; color: #5B6676">← prev</span><span style="font-weight: 600">{prev.data.title}</span></a>}
+{next && <a href={`/docs/${next.id}/`} rel="next" style="display: flex; flex-direction: column; gap: 4px; padding: 16px 18px; text-decoration: none; text-align: right; background: #FFD9CB"><span class="mono" style="font-size: 12px; color: #3C4756">next →</span><span style="font-weight: 600">{next.data.title}</span></a>}
+</nav>
+</article>
+
+<aside class="rail" aria-label="On this page" style="flex: 1 1 200px; max-width: 240px; padding: 44px 0 48px; position: sticky; top: 65px; max-height: calc(100vh - 65px); overflow-y: auto; scrollbar-width: thin">
+{heads.length > 0 && <p class="mono" style="margin: 0 0 12px; font-size: 12px; color: #3C4756">on this page</p>}
+<nav style="display: flex; flex-direction: column">
+{heads.map((h, n) => <a class={n === 0 ? 'toc cur' : 'toc'} href={`#${h.slug}`} data-head={h.slug}>{h.text}</a>)}
+</nav>
+<div style="margin-top: 28px; padding-top: 18px; border-top: 1px solid #C9D2DC; display: flex; flex-direction: column; gap: 10px; font-size: 14px">
+<a href={EDIT_BASE + source}>Edit this page on GitHub</a>
+{entry.id !== 'eloquent-compatibility' && <a href="/docs/eloquent-compatibility/">Eloquent compatibility</a>}
+</div>
+</aside>
+</main>
+</div>
+</Base>
+
+<script>
+  // Copy buttons in code cards (added by the Shiki transformer in astro.config.mjs).
+  document.addEventListener('click', (e) => {
+    const btn = (e.target as Element).closest<HTMLButtonElement>('.code .copy');
+    if (!btn) return;
+    const code = btn.closest('.code')!.querySelector('pre')!.textContent ?? '';
+    navigator.clipboard?.writeText(code).catch(() => {});
+    btn.textContent = 'Copied';
+    clearTimeout(Number(btn.dataset.t));
+    btn.dataset.t = String(setTimeout(() => (btn.textContent = 'Copy'), 1600));
+  });
+
+  // Sidebar groups collapse; CSS hides the list after a collapsed button.
+  document.querySelectorAll<HTMLButtonElement>('.gbtn').forEach((b) =>
+    b.addEventListener('click', () => b.setAttribute('aria-expanded', String(b.getAttribute('aria-expanded') !== 'true'))),
+  );
+
+  // Highlight the h2 section being read, in the sidebar tree and the right rail.
+  const h2s = [...document.querySelectorAll<HTMLElement>('.prose h2[id]')];
+  function mark(id: string) {
+    document.querySelectorAll<HTMLElement>('[data-head]').forEach((a) => {
+      const on = a.dataset.head === id;
+      a.classList.toggle('cur', on);
+      const subs = a.nextElementSibling as HTMLElement | null;
+      if (subs?.tagName === 'UL') subs.hidden = !on;
+    });
+  }
+  if (h2s.length) {
+    const visible = new Set<Element>();
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((en) => (en.isIntersecting ? visible.add(en.target) : visible.delete(en.target)));
+        // The topmost heading in view wins; with none in view, the last one scrolled past stays current.
+        const top = h2s.find((h) => visible.has(h)) ?? [...h2s].reverse().find((h) => h.getBoundingClientRect().top < 0);
+        if (top) mark(top.id);
+      },
+      { rootMargin: '-65px 0px -60% 0px' },
+    );
+    h2s.forEach((h) => io.observe(h));
+  }
+</script>

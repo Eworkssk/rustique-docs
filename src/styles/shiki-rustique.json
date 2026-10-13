@@ -1,0 +1,55 @@
+{
+  "name": "rustique",
+  "type": "dark",
+  "colors": {
+    "editor.background": "#10161F",
+    "editor.foreground": "#E8ECF1"
+  },
+  "tokenColors": [
+    { "settings": { "foreground": "#E8ECF1", "background": "#10161F" } },
+    {
+      "scope": ["comment", "punctuation.definition.comment", "meta.attribute", "meta.attribute punctuation", "meta.attribute string", "meta.attribute entity", "meta.attribute keyword", "meta.attribute variable", "meta.attribute constant", "meta.attribute storage"],
+      "settings": { "foreground": "#8A96A6", "fontStyle": "" }
+    },
+    {
+      "scope": ["keyword", "storage.type", "storage.modifier", "constant.language", "variable.language.self", "variable.language", "keyword.other.unsafe"],
+      "settings": { "foreground": "#9AA5B4", "fontStyle": "italic" }
+    },
+    {
+      "scope": ["keyword.operator", "punctuation"],
+      "settings": { "foreground": "#E8ECF1", "fontStyle": "" }
+    },
+    {
+      "scope": ["entity.name.type", "entity.name.class", "support.type", "support.class", "entity.name.type.numeric", "entity.name.type.primitive"],
+      "settings": { "foreground": "#FF7448" }
+    },
+    {
+      "scope": ["entity.name.type.option", "entity.name.type.result", "entity.name.type.std", "support.type.collection"],
+      "settings": { "foreground": "#38D39F" }
+    },
+    {
+      "scope": ["constant.other", "constant.other.caps", "variable.other.constant", "variable.other.enummember", "entity.name.constant", "support.constant"],
+      "settings": { "foreground": "#FFC53D" }
+    },
+    {
+      "scope": ["string", "punctuation.definition.string"],
+      "settings": { "foreground": "#8DA2FF" }
+    },
+    {
+      "scope": ["constant.numeric"],
+      "settings": { "foreground": "#FF7448" }
+    },
+    {
+      "scope": ["entity.name.tag", "entity.other.attribute-name", "variable.other.property"],
+      "settings": { "foreground": "#E8ECF1" }
+    },
+    {
+      "scope": ["markup.inserted"],
+      "settings": { "foreground": "#38D39F" }
+    },
+    {
+      "scope": ["markup.deleted", "invalid"],
+      "settings": { "foreground": "#FF7448" }
+    }
+  ]
+}

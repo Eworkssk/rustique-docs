@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="Rustique logo">
+  <!-- Struct memory layout: four fields, one byte-bar each. Colors match the docs site palette. -->
+  <rect width="256" height="256" fill="#F3F5F7"/>
+  <g transform="translate(24 84)">
+    <rect x="1" y="1" width="206" height="86" fill="#F3F5F7"/>
+    <rect x="2" y="2" width="24" height="84" fill="#FF7448"/>
+    <rect x="26" y="2" width="68" height="84" fill="#8DA2FF"/>
+    <rect x="94" y="2" width="38" height="84" fill="#FFC53D"/>
+    <rect x="132" y="2" width="74" height="84" fill="#38D39F"/>
+    <path d="M26 2v84M94 2v84M132 2v84" stroke="#10161F" stroke-width="4"/>
+    <rect x="2" y="2" width="204" height="84" fill="none" stroke="#10161F" stroke-width="4"/>
+  </g>
+</svg>

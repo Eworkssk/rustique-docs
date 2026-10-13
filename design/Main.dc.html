@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<!-- Extracted from Claude Design artifact "rustique" (Landing artboard, 1440x5600).
+     Fonts: Google Fonts "Martian Mono" (wght 100..800, wdth 75..112.5) and "Schibsted Grotesk" (wght 400..900, italic).
+     {{...}} are template bindings; sc-camel-on-click = onClick; sc-for = loop; sc-raw-table etc = plain table/thead/tr/th/td.
+     The <script type="text/x-dc"> at the end holds the data (bench rows, dialect diff rows, feature bits) and interaction logic. -->
+<html lang="en"><head>
+<meta charset="utf-8">
+<title>rustique: Eloquent-style ORM for Rust</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Martian+Mono:wdth,wght@75..112.5,100..800&family=Schibsted+Grotesk:ital,wght@0,400..900;1,400..900&display=swap">
+</head>
+<body>
+<style>
+body{margin:0;background:#F3F5F7}
+a{color:#10161F;text-underline-offset:3px;text-decoration-thickness:1px}
+a:hover{color:#C2401A}
+::selection{background:#FFC53D;color:#10161F}
+.rq{background-color:#F3F5F7;background-image:linear-gradient(#E3E8EE 1px,transparent 1px),linear-gradient(90deg,#E3E8EE 1px,transparent 1px);background-size:24px 24px}
+.rq :focus-visible{outline:2px solid #3050D8;outline-offset:2px}
+.mono{font-family:'Martian Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.cond{font-stretch:75%}
+.hatch{background-image:repeating-linear-gradient(135deg,rgba(16,22,31,.2) 0 1px,transparent 1px 7px)}
+.chars{background-image:linear-gradient(90deg,rgba(16,22,31,.18) 1px,transparent 1px);background-size:1ch 100%}
+.ticks{background-image:linear-gradient(90deg,#10161F 1px,transparent 1px);background-size:1ch 5px;background-repeat:repeat-x;background-position:0 100%}
+.bytes{background-image:linear-gradient(90deg,rgba(16,22,31,.28) 1px,transparent 1px);background-size:8px 100%}
+.cl{white-space:pre;min-height:1.75em}
+.k{color:#9AA5B4;font-style:italic}.t{color:#FF7448}.c{color:#FFC53D}.s{color:#8DA2FF}.r{color:#38D39F}.n{color:#FF7448}.m{color:#8A96A6}.p{color:#E8ECF1}
+.typo{color:#FF7448;text-decoration:underline wavy #FF7448;text-underline-offset:5px;animation:blink 1.6s steps(2,end) infinite}
+.caret{display:inline-block;width:.6ch;height:1.15em;vertical-align:-.2em;background:#FFC53D;animation:blink 1.1s steps(2,end) infinite}
+.btn{display:inline-flex;align-items:center;gap:10px;min-height:48px;padding:0 20px;border:1px solid #10161F;background:#10161F;color:#F3F5F7;font:600 15px/1 'Schibsted Grotesk',sans-serif;text-decoration:none;cursor:pointer;transition:background .2s,color .2s}
+.btn:hover{background:#FF7448;color:#10161F}
+.ghost{background:transparent;color:#10161F}
+.ghost:hover{background:#10161F;color:#F3F5F7}
+.copy{min-height:44px;padding:0 16px;border:0;border-left:1px solid #10161F;background:#8DA2FF;color:#10161F;font:600 13px/1 'Martian Mono',monospace;cursor:pointer;transition:background .2s}
+.copy:hover{background:#FFC53D}
+.seg{min-height:44px;padding:0 18px;border:0;background:transparent;color:#10161F;font:600 13px/1 'Martian Mono',monospace;cursor:pointer;transition:background .25s,color .25s}
+.seg+.seg{border-left:1px solid #10161F}
+.seg:hover{background:#E3E8EE}
+.seg.on{background:#10161F;color:#F3F5F7}
+.bit{display:flex;flex-direction:column;gap:6px;align-items:flex-start;min-height:96px;padding:12px 14px;border:0;border-left:1px solid #10161F;background:transparent;color:#10161F;text-align:left;cursor:pointer;font:500 13px/1.3 'Schibsted Grotesk',sans-serif;transition:background .25s}
+.bit:first-child{border-left:0}
+.bit:hover{background:#E3E8EE}
+.bit.on{background:#38D39F}
+.nav a{text-decoration:none}
+.nl{position:relative;display:flex;align-items:center;min-height:44px;font:500 15px/1 'Schibsted Grotesk',sans-serif;color:#10161F}
+.nl::after{content:"";position:absolute;left:0;right:0;bottom:8px;height:3px;background:var(--u,#FF7448);transform:scaleX(0);transform-origin:left;transition:transform .35s cubic-bezier(.16,1,.3,1)}
+.nl:hover{color:#10161F}
+.nl:hover::after,.nl:focus-visible::after{transform:scaleX(1)}
+.sbox{display:flex;align-items:center;gap:10px;min-height:40px;min-width:210px;padding:0 8px 0 14px;background:#E3E8EE;color:#3C4756;font:500 14px/1 'Schibsted Grotesk',sans-serif;transition:background .2s,color .2s}
+.sbox:hover{background:#D7DEE6;color:#10161F}
+@media (prefers-reduced-motion:reduce){.nl::after{transition:none}}
+.drow{transition:background .2s}
+.drow:hover{background:#E3E8EE}
+.diff.on{background:#FFC53D}
+.bar{transition:width .7s cubic-bezier(.16,1,.3,1)}
+.scrollx{overflow-x:auto;scrollbar-color:#10161F #E3E8EE;scrollbar-width:thin}
+.anim{animation-duration:10s;animation-timing-function:cubic-bezier(.16,1,.3,1);animation-iteration-count:infinite;animation-fill-mode:both}
+@keyframes blink{0%{opacity:1}50%{opacity:.25}100%{opacity:1}}
+@keyframes w1{0%,2%{clip-path:inset(0 100% 0 0)}8%,90%{clip-path:inset(0 0 0 0);opacity:1}96%,100%{clip-path:inset(0 0 0 0);opacity:0}}
+@keyframes w2{0%,26%{clip-path:inset(0 100% 0 0)}32%,90%{clip-path:inset(0 0 0 0);opacity:1}96%,100%{clip-path:inset(0 0 0 0);opacity:0}}
+@keyframes v0{0%,10%{opacity:0;transform:translateY(-14px)}13%,90%{opacity:1;transform:none}96%,100%{opacity:0;transform:none}}
+@keyframes v1{0%,11.5%{opacity:0;transform:translateY(-14px)}14.5%,90%{opacity:1;transform:none}96%,100%{opacity:0;transform:none}}
+@keyframes v2{0%,13%{opacity:0;transform:translateY(-14px)}16%,90%{opacity:1;transform:none}96%,100%{opacity:0;transform:none}}
+@keyframes v3{0%,14.5%{opacity:0;transform:translateY(-14px)}17.5%,90%{opacity:1;transform:none}96%,100%{opacity:0;transform:none}}
+@keyframes v4{0%,16%{opacity:0;transform:translateY(-14px)}19%,90%{opacity:1;transform:none}96%,100%{opacity:0;transform:none}}
+@keyframes v5{0%,17.5%{opacity:0;transform:translateY(-14px)}20.5%,90%{opacity:1;transform:none}96%,100%{opacity:0;transform:none}}
+@keyframes v6{0%,19%{opacity:0;transform:translateY(-14px)}22%,90%{opacity:1;transform:none}96%,100%{opacity:0;transform:none}}
+@keyframes ld{0%,33%{clip-path:inset(0 100% 0 0)}36%,90%{clip-path:inset(0 0 0 0);opacity:1}96%,100%{clip-path:inset(0 0 0 0);opacity:0}}
+@keyframes pt{0%,36%{clip-path:inset(0 0 0 100%)}42%,90%{clip-path:inset(0 0 0 0);opacity:1}96%,100%{clip-path:inset(0 0 0 0);opacity:0}}
+@keyframes hp{0%,38%{opacity:0}41%,90%{opacity:1}96%,100%{opacity:0}}
+@keyframes h0{0%,42%{opacity:0;transform:translateX(-18px)}45%,90%{opacity:1;transform:none}96%,100%{opacity:0;transform:none}}
+@keyframes h1{0%,44%{opacity:0;transform:translateX(-18px)}47%,90%{opacity:1;transform:none}96%,100%{opacity:0;transform:none}}
+@keyframes h2{0%,46%{opacity:0;transform:translateX(-18px)}49%,90%{opacity:1;transform:none}96%,100%{opacity:0;transform:none}}
+@keyframes sc{0%,50%{opacity:0}54%,90%{opacity:1}96%,100%{opacity:0}}
+.still .anim,.still .typo,.still .caret{animation:none!important}
+@media (prefers-reduced-motion:reduce){.anim,.typo,.caret{animation:none!important}.bar{transition:none}}
+.rig-m{display:none}
+@media (max-width:960px){.rig-d{display:none!important}.rig-m{display:block}}
+@media (max-width:720px){
+.wrap{padding-left:16px!important;padding-right:16px!important}
+.navhide{display:none!important}
+.mainnav{flex:1 1 100%;justify-content:space-between;gap:4px 16px!important;padding-bottom:8px}
+.sbox{min-width:0;min-height:44px;padding:0 12px;margin-left:0!important}
+.sbox .slabel{display:none}
+.inst code{font-size:13px!important;padding:0 12px!important}
+.inst .copy{padding:0 12px}
+.dtable,.dtable tbody,.dtable tr,.dtable th,.dtable td{display:block;width:auto!important}
+.dtable thead{display:none}
+.dtable caption{display:block;padding-bottom:10px}
+.dtable tbody{border-top:1px solid #10161F}
+.dtable tr{border:1px solid #10161F;border-top:0;background:#F3F5F7}
+.dtable th,.dtable td{border:0!important;background:transparent!important}
+.dtable th{padding:12px 14px 2px!important;font-family:'Martian Mono',monospace;font-size:12px;font-weight:600!important;color:#3C4756}
+.dtable td{padding:2px 14px 14px!important}
+.dtable td.diff:not(.on){display:none}
+.dtable td code{display:inline-block;background:#FFC53D;padding:3px 7px;line-height:1.5}
+.plan li{flex-wrap:wrap}
+.plan .ptag{flex:1 1 100%;border-left:0!important;border-top:1px solid #10161F;min-height:36px}
+.bname{flex:1 1 55%!important}
+.bfac{order:2;flex:0 0 auto!important}
+.bbars{order:3;flex:1 1 100%!important}
+}
+</style>
+<div class="rq {{rootCls}}" style="min-height: 100%; color: #10161F; font-family: 'Schibsted Grotesk', 'Helvetica Neue', Helvetica, sans-serif; font-size: 17px; line-height: 1.6; -webkit-font-smoothing: antialiased">
+
+<header class="nav" style="position: relative; z-index: 2; background: #F3F5F7; border-bottom: 1px solid #C9D2DC">
+<div class="wrap" style="max-width: 1280px; margin: 0 auto; padding: 0 32px; display: flex; align-items: stretch; justify-content: space-between; flex-wrap: wrap">
+<a href="#top" aria-label="rustique home" style="display: flex; align-items: center; gap: 12px; min-height: 64px; padding-right: 20px">
+<svg width="44" height="18" viewBox="0 0 44 18" aria-hidden="true"><rect x="0.5" y="0.5" width="43" height="17" fill="#F3F5F7" stroke="#10161F"></rect><rect x="1" y="1" width="5" height="16" fill="#FF7448"></rect><rect x="6" y="1" width="14" height="16" fill="#8DA2FF"></rect><rect x="20" y="1" width="8" height="16" fill="#FFC53D"></rect><rect x="28" y="1" width="15" height="16" fill="#38D39F"></rect><path d="M6 1v16M20 1v16M28 1v16" stroke="#10161F"></path></svg>
+<span style="display: flex; align-items: baseline; gap: 10px">
+<span class="mono" style="font-size: 18px; font-weight: 700; letter-spacing: -0.02em">rustique</span>
+<span class="mono navhide" style="font-size: 12px; color: #5B6676">v0.2</span>
+</span>
+</a>
+<nav class="mainnav" aria-label="Main" style="display: flex; align-items: center; flex-wrap: wrap; gap: 4px 28px">
+<a class="nl" href="Docs.dc.html" style="--u: #FF7448">Docs</a>
+<a class="nl navhide" href="Docs.dc.html" style="--u: #8DA2FF">Cheat sheet</a>
+<a class="nl" href="#bench" style="--u: #FFC53D">Benchmarks</a>
+<a class="nl" href="https://github.com/Eworkssk/rustique" style="--u: #38D39F">GitHub</a>
+<a class="sbox" href="Docs.dc.html" aria-label="Search docs" style="margin-left: 8px">
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="7" cy="7" r="5"></circle><path d="M11 11l3.5 3.5"></path></svg>
+<span class="slabel">Search docs</span>
+<span class="mono slabel" style="margin-left: auto; font-size: 12px; padding: 3px 6px; background: #F3F5F7; color: #3C4756">Ctrl K</span>
+</a>
+</nav>
+</div>
+</header>
+
+<main id="top">
+<section class="wrap" style="max-width: 1280px; margin: 0 auto; padding: 56px 32px 0">
+
+<div class="mono" aria-hidden="true" style="font-size: clamp(30px, 4.4vw, 64px); font-weight: 700; line-height: 1; height: 26px; display: flex; overflow: hidden">
+<div class="ticks" style="flex: 1 1 auto; display: flex; align-items: flex-start; color: #5B6676">
+<span style="flex: 0 0 8ch; box-sizing: border-box; height: 26px; border-left: 1px solid #10161F"><span style="display: block; padding-left: 6px; font-size: 12px; font-weight: 400; line-height: 1">0x00</span></span>
+<span style="flex: 0 0 8ch; box-sizing: border-box; height: 26px; border-left: 1px solid #10161F"><span style="display: block; padding-left: 6px; font-size: 12px; font-weight: 400; line-height: 1">0x08</span></span>
+<span style="flex: 0 0 8ch; box-sizing: border-box; height: 26px; border-left: 1px solid #10161F"><span style="display: block; padding-left: 6px; font-size: 12px; font-weight: 400; line-height: 1">0x10</span></span>
+<span style="flex: 0 0 8ch; box-sizing: border-box; height: 26px; border-left: 1px solid #10161F"><span style="display: block; padding-left: 6px; font-size: 12px; font-weight: 400; line-height: 1">0x18</span></span>
+<span style="flex: 0 0 8ch; box-sizing: border-box; height: 26px; border-left: 1px solid #10161F"><span style="display: block; padding-left: 6px; font-size: 12px; font-weight: 400; line-height: 1">0x20</span></span>
+</div>
+</div>
+
+<h1 class="mono" style="margin: 10px 0 0; font-size: clamp(30px, 4.4vw, 64px); line-height: 1.12; font-weight: 700; letter-spacing: 0; text-wrap: balance">
+<span class="chars" style="display: inline; background-color: #F3F5F7; box-decoration-break: clone; -webkit-box-decoration-break: clone">Eloquent models,</span><br>
+<span class="chars" style="display: inline; background-color: #F3F5F7; box-decoration-break: clone; -webkit-box-decoration-break: clone">laid out as </span><span class="chars" style="display: inline; background-color: #FF7448; box-decoration-break: clone; -webkit-box-decoration-break: clone">Rust structs.</span>
+</h1>
+
+<div style="display: flex; flex-wrap: wrap; gap: 40px 56px; align-items: flex-end; margin-top: 36px">
+<div style="flex: 7 1 460px; min-width: 0">
+<p style="margin: 0; max-width: 58ch; font-size: 19px; line-height: 1.55; color: #3C4756; text-wrap: pretty">Rustique is an active-record ORM for Rust with the API you know from Laravel: models, a fluent query builder, relations, migrations and factories. Every column gets a compile-time constant, so typos fail the build. One API speaks MySQL and Oracle.</p>
+<div style="display: flex; flex-wrap: wrap; gap: 16px; margin-top: 28px; align-items: stretch">
+<div class="inst" style="display: flex; align-items: stretch; border: 1px solid #10161F; background: #F3F5F7; min-width: 0">
+<span class="mono" style="display: flex; align-items: center; padding: 0 14px; background: #10161F; color: #8A96A6; font-size: 13px">$</span>
+<code class="mono" style="display: flex; align-items: center; padding: 0 18px; font-size: 15px; white-space: nowrap">cargo add rustique-orm</code>
+<button class="copy" type="button" onclick="{{copyHero}}" aria-label="Copy install command">{{heroCopyLabel}}</button>
+</div>
+<a class="btn" href="Docs.dc.html">Read the docs
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4"></path></svg>
+</a>
+</div>
+<p class="mono" style="margin: 18px 0 0; font-size: 12px; color: #5B6676">async on tokio · Rust 1.88+ · unsafe forbidden · MIT or Apache-2.0</p>
+</div>
+
+<div class="mono" style="flex: 5 1 380px; min-width: 0; background: #10161F; color: #E8ECF1; border: 1px solid #10161F">
+<div style="display: flex; justify-content: space-between; padding: 10px 16px; border-bottom: 1px solid #2A3442; font-size: 12px; color: #8A96A6">
+<span>src/main.rs</span>
+<span>eager load · 2 statements</span>
+</div>
+<div class="scrollx" style="padding: 18px 20px 20px; font-size: 13.5px; line-height: 1.75">
+<div class="cl"><span class="k">let</span><span class="p"> users = </span><span class="t">User</span><span class="p">::query()</span></div>
+<div class="cl"><span class="p">    .where_(</span><span class="t">User</span><span class="p">::</span><span class="c">NAME</span><span class="p">, </span><span class="s">"="</span><span class="p">, </span><span class="s">"Ann"</span><span class="p">)</span></div>
+<div class="cl"><span class="p">    .with(</span><span class="r">"posts"</span><span class="p">)</span></div>
+<div class="cl"><span class="p">    .get(&amp;db).</span><span class="k">await</span><span class="p">?;</span><span class="caret" aria-hidden="true"></span></div>
+</div>
+</div>
+</div>
+
+<figure aria-label="Animated diagram: the query runs two SQL statements and its rows fill the User struct's fields; the posts field points to a heap buffer of three Post structs." style="margin: 56px 0 0">
+<div class="scrollx rig-d" style="padding-bottom: 8px">
+<div style="min-width: 880px; position: relative">
+
+<div class="mono cond" style="display: flex; flex-direction: column; gap: 8px; font-size: 12.5px">
+<div class="anim" style="animation-name: w1; display: flex; align-items: stretch; border: 1px solid #10161F; background: #F3F5F7">
+<span style="display: flex; align-items: center; padding: 0 12px; background: #10161F; color: #F3F5F7; font-weight: 700">q1</span>
+<span style="flex: 1 1 auto; padding: 8px 14px; white-space: nowrap">SELECT * FROM `users` WHERE `name` = ? AND `users`.`deleted_at` IS NULL</span>
+<span style="display: flex; align-items: center; padding: 0 14px; border-left: 1px solid #10161F; color: #3C4756">1 row → User</span>
+</div>
+<div class="anim" style="animation-name: w2; display: flex; align-items: stretch; border: 1px solid #10161F; background: #F3F5F7">
+<span style="display: flex; align-items: center; padding: 0 12px; background: #10161F; color: #F3F5F7; font-weight: 700">q2</span>
+<span style="flex: 1 1 auto; padding: 8px 14px; white-space: nowrap">SELECT * FROM `posts` WHERE `posts`.`user_id` IN (?)</span>
+<span style="display: flex; align-items: center; padding: 0 14px; border-left: 1px solid #10161F; color: #3C4756">3 rows → Vec&lt;Post&gt;</span>
+</div>
+</div>
+
+<div style="display: flex; align-items: baseline; justify-content: space-between; margin-top: 28px">
+<p class="mono" style="margin: 0; font-size: 14px; font-weight: 700">struct User</p>
+<p class="mono" style="margin: 0; font-size: 12px; color: #5B6676">size_of::&lt;User&gt;() == 120 · drawn in declaration order; rustc may reorder</p>
+</div>
+
+<div class="mono cond" style="display: grid; grid-template-columns: 8fr 24fr 24fr 12fr 12fr 12fr 4fr 24fr; margin-top: 10px; font-size: 11.5px; line-height: 1.3">
+<div style="padding: 0 4px 8px; border-left: 1px solid #10161F"><b>id</b><br><span style="color: #C2401A">i64</span></div>
+<div style="padding: 0 4px 8px; border-left: 1px solid #10161F"><b>name</b><br><span style="color: #3050D8">String</span></div>
+<div style="padding: 0 4px 8px; border-left: 1px solid #10161F"><b>email</b><br><span style="color: #3050D8">String</span></div>
+<div style="padding: 0 4px 8px; border-left: 1px solid #10161F"><b>created_at</b><br><span style="color: #8A5A00">Option&lt;NaiveDT&gt;</span></div>
+<div style="padding: 0 4px 8px; border-left: 1px solid #10161F"><b>updated_at</b><br><span style="color: #8A5A00">Option&lt;NaiveDT&gt;</span></div>
+<div style="padding: 0 4px 8px; border-left: 1px solid #10161F"><b>deleted_at</b><br><span style="color: #8A5A00">Option&lt;NaiveDT&gt;</span></div>
+<div style="padding: 0 0 8px; border-left: 1px solid #10161F"></div>
+<div style="padding: 0 4px 8px; border-left: 1px solid #10161F; border-right: 1px solid #10161F"><b>posts</b><br><span style="color: #0E7A55">Rel&lt;Vec&lt;Post&gt;&gt;</span></div>
+</div>
+
+<div class="mono" aria-hidden="true" style="display: grid; grid-template-columns: 8fr 24fr 24fr 12fr 12fr 12fr 4fr 24fr; font-size: 11.5px; color: #5B6676; position: relative">
+<span style="border-left: 1px solid #10161F; padding: 0 0 4px 4px">+0x00</span>
+<span style="border-left: 1px solid #10161F; padding: 0 0 4px 4px">+0x08</span>
+<span style="border-left: 1px solid #10161F; padding: 0 0 4px 4px">+0x20</span>
+<span style="border-left: 1px solid #10161F; padding: 0 0 4px 4px">+0x38</span>
+<span style="border-left: 1px solid #10161F; padding: 0 0 4px 4px">+0x44</span>
+<span style="border-left: 1px solid #10161F; padding: 0 0 4px 4px">+0x50</span>
+<span style="border-left: 1px solid #10161F; padding: 0 0 4px 0"></span>
+<span style="border-left: 1px solid #10161F; border-right: 1px solid #10161F; padding: 0 0 4px 4px; display: flex; justify-content: space-between">+0x60<span style="padding-right: 4px">0x78</span></span>
+</div>
+
+<div class="mono" style="display: grid; grid-template-columns: 8fr 24fr 24fr 12fr 12fr 12fr 4fr 24fr; height: 68px; border: 1px solid #10161F; background: #F3F5F7; font-size: 14px">
+<div style="position: relative; border-right: 1px solid #10161F"><div class="hatch" style="position: absolute; inset: 0"></div><div class="anim" style="animation-name: v0; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: #FF7448; font-weight: 700">1</div></div>
+<div style="position: relative; border-right: 1px solid #10161F"><div class="hatch" style="position: absolute; inset: 0"></div><div class="anim" style="animation-name: v1; position: absolute; inset: 0; display: flex; align-items: center; padding: 0 12px; background: #8DA2FF">"Ann"</div></div>
+<div style="position: relative; border-right: 1px solid #10161F"><div class="hatch" style="position: absolute; inset: 0"></div><div class="anim" style="animation-name: v2; position: absolute; inset: 0; display: flex; align-items: center; padding: 0 12px; background: #8DA2FF">"ann@example.com"</div></div>
+<div style="position: relative; border-right: 1px solid #10161F"><div class="hatch" style="position: absolute; inset: 0"></div><div class="anim cond" style="animation-name: v3; position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; padding: 0 8px; background: #FFC53D; font-size: 12px; line-height: 1.3"><span>Some(</span><span>2026-10-13)</span></div></div>
+<div style="position: relative; border-right: 1px solid #10161F"><div class="hatch" style="position: absolute; inset: 0"></div><div class="anim cond" style="animation-name: v4; position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; padding: 0 8px; background: #FFC53D; font-size: 12px; line-height: 1.3"><span>Some(</span><span>2026-10-13)</span></div></div>
+<div style="position: relative; border-right: 1px solid #10161F"><div class="hatch" style="position: absolute; inset: 0"></div><div class="anim" style="animation-name: v5; position: absolute; inset: 0; display: flex; align-items: center; padding: 0 10px; background: #FFC53D; font-size: 12px">None</div></div>
+<div class="hatch" title="padding" style="border-right: 1px solid #10161F; background-color: #E3E8EE"></div>
+<div style="position: relative">
+<div class="hatch" style="position: absolute; inset: 0"></div>
+<div class="anim" style="animation-name: v6; position: absolute; inset: 0; display: flex; align-items: center; padding: 0 12px; background: #CFF3E3; font-size: 12px">NotLoaded</div>
+<div class="anim" style="animation-name: ld; position: absolute; inset: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); background: #38D39F; font-size: 12px">
+<span style="display: flex; flex-direction: column; justify-content: center; align-items: center; border-right: 1px solid #10161F; line-height: 1.2">ptr<svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true" style="margin-top: 4px"><circle cx="5" cy="5" r="4" fill="#10161F"></circle></svg></span>
+<span style="display: flex; flex-direction: column; justify-content: center; align-items: center; border-right: 1px solid #10161F; line-height: 1.4">cap<b>4</b></span>
+<span style="display: flex; flex-direction: column; justify-content: center; align-items: center; line-height: 1.4">len<b>3</b></span>
+</div>
+</div>
+</div>
+
+<div style="position: relative; display: flex; justify-content: space-between; gap: 32px; padding-top: 40px; min-height: 250px">
+<div class="anim" aria-hidden="true" style="animation-name: pt; position: absolute; inset: 0; pointer-events: none">
+<div style="position: absolute; left: 83.33%; top: 0; height: 20px; border-left: 2px solid #0E7A55; margin-left: -1px"></div>
+<div style="position: absolute; left: 41%; right: 16.67%; top: 20px; border-top: 2px solid #0E7A55"></div>
+<div style="position: absolute; left: 41%; top: 20px; height: 92px; border-left: 2px solid #0E7A55"></div>
+<div style="position: absolute; left: 41%; top: 110px; width: 3.2%; border-top: 2px solid #0E7A55"></div>
+<div style="position: absolute; left: calc(44.2% - 2px); top: 105px; width: 0; height: 0; border-top: 6px solid transparent; border-bottom: 6px solid transparent; border-left: 9px solid #0E7A55"></div>
+</div>
+
+<div style="flex: 0 0 36%; max-width: 36%">
+<p style="margin: 0; font-size: 17px; line-height: 1.55; text-wrap: pretty"><code class="mono" style="font-size: 14px; background: #CFF3E3; padding: 1px 5px">with("posts")</code> fills every user's posts in one more statement: one per relation level, batched by 1000 parent keys. Never one per row.</p>
+<p style="margin: 14px 0 0; font-size: 15px; line-height: 1.55; color: #3C4756; text-wrap: pretty"><code class="mono" style="font-size: 13px">Rel&lt;T&gt;</code> stays <code class="mono" style="font-size: 13px">NotLoaded</code> until you ask. Rust can't run a query on field access, so loading is always explicit.</p>
+<p class="mono anim" style="animation-name: sc; margin: 18px 0 0; font-size: 12px; color: #0E7A55; font-weight: 700">2 statements · 1 User · 3 Posts</p>
+</div>
+
+<div class="mono anim" style="animation-name: hp; flex: 0 0 55%; max-width: 55%; font-size: 12.5px">
+<div style="display: flex; align-items: center; justify-content: space-between; height: 28px; font-size: 12px; color: #3C4756"><span><b style="color: #10161F">heap</b> · Vec&lt;Post&gt; buffer</span><span>cap 4 · len 3</span></div>
+<div class="cond" style="display: grid; grid-template-columns: 8fr 8fr 24fr; height: 22px; align-items: end; font-size: 11.5px; color: #5B6676"><span style="padding: 0 8px 3px">id i64</span><span style="padding: 0 8px 3px">user_id i64</span><span style="padding: 0 8px 3px">title String</span></div>
+<div style="border: 1px solid #10161F; background: #F3F5F7">
+<div class="anim" style="animation-name: h0; display: grid; grid-template-columns: 8fr 8fr 24fr; height: 40px; border-bottom: 1px solid #10161F"><span style="display: flex; align-items: center; padding: 0 10px; background: #FF7448; border-right: 1px solid #10161F">11</span><span style="display: flex; align-items: center; padding: 0 10px; background: #FF7448; border-right: 1px solid #10161F">1</span><span style="display: flex; align-items: center; padding: 0 12px; background: #8DA2FF">"Hello, rustique"</span></div>
+<div class="anim" style="animation-name: h1; display: grid; grid-template-columns: 8fr 8fr 24fr; height: 40px; border-bottom: 1px solid #10161F"><span style="display: flex; align-items: center; padding: 0 10px; background: #FF7448; border-right: 1px solid #10161F">12</span><span style="display: flex; align-items: center; padding: 0 10px; background: #FF7448; border-right: 1px solid #10161F">1</span><span style="display: flex; align-items: center; padding: 0 12px; background: #8DA2FF">"Eager, not N+1"</span></div>
+<div class="anim" style="animation-name: h2; display: grid; grid-template-columns: 8fr 8fr 24fr; height: 40px; border-bottom: 1px solid #10161F"><span style="display: flex; align-items: center; padding: 0 10px; background: #FF7448; border-right: 1px solid #10161F">13</span><span style="display: flex; align-items: center; padding: 0 10px; background: #FF7448; border-right: 1px solid #10161F">1</span><span style="display: flex; align-items: center; padding: 0 12px; background: #8DA2FF">"Two dialects"</span></div>
+<div class="hatch" style="display: flex; align-items: center; height: 40px; padding: 0 12px; color: #3C4756; font-size: 12px">spare capacity · uninit</div>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="rig-m">
+<!-- Mobile variant (<=960px) of the same diagram: stacked q1/q2 cards, then a vertical struct table
+     (offset | field+type | animated value), then the heap Vec<Post> table, then the explanatory paragraphs.
+     Same classes/colors/animation names as the desktop version above. -->
+<div class="mono cond" style="display: flex; flex-direction: column; gap: 8px; font-size: 12.5px">
+<div class="anim" style="animation-name: w1; border: 1px solid #10161F; background: #F3F5F7">
+<div style="display: flex; justify-content: space-between; gap: 8px; padding: 6px 10px; background: #10161F; color: #F3F5F7"><b>q1</b><span style="color: #B0BAC6">1 row → User</span></div>
+<p style="margin: 0; padding: 8px 10px; line-height: 1.5; overflow-wrap: anywhere">SELECT * FROM `users` WHERE `name` = ? AND `users`.`deleted_at` IS NULL</p>
+</div>
+<div class="anim" style="animation-name: w2; border: 1px solid #10161F; background: #F3F5F7">
+<div style="display: flex; justify-content: space-between; gap: 8px; padding: 6px 10px; background: #10161F; color: #F3F5F7"><b>q2</b><span style="color: #B0BAC6">3 rows → Vec&lt;Post&gt;</span></div>
+<p style="margin: 0; padding: 8px 10px; line-height: 1.5; overflow-wrap: anywhere">SELECT * FROM `posts` WHERE `posts`.`user_id` IN (?)</p>
+</div>
+</div>
+<div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 24px 0 8px">
+<p class="mono" style="margin: 0; font-size: 14px; font-weight: 700">struct User</p>
+<p class="mono" style="margin: 0; font-size: 12px; color: #5B6676">120 bytes</p>
+</div>
+<div class="mono" style="border: 1px solid #10161F; background: #F3F5F7; font-size: 13px">
+<!-- rows: grid-template-columns: 58px minmax(0,1.25fr) minmax(0,1fr); min-height 52px; border-bottom 1px solid #10161F
+     +0x00 id i64 -> "1" (#FF7448, v0) | +0x08 name String -> "Ann" (#8DA2FF, v1) | +0x20 email String -> "ann@example.com" (#8DA2FF, v2)
+     +0x38 created_at Option<NaiveDT> -> Some(2026-10-13) (#FFC53D, v3) | +0x44 updated_at -> Some(2026-10-13) (#FFC53D, v4) | +0x50 deleted_at -> None (#FFC53D, v5)
+     +0x5C "4 bytes padding" hatched row (#E3E8EE, 28px) | +0x60 posts Rel<Vec<Post>> -> NotLoaded (#CFF3E3, v6) then ptr/cap 4/len 3 (#38D39F, ld) -->
+<div style="display: grid; grid-template-columns: 58px minmax(0, 1.25fr) minmax(0, 1fr); min-height: 52px; border-bottom: 1px solid #10161F"><span style="display: flex; align-items: center; padding: 0 8px; font-size: 12px; color: #5B6676; border-right: 1px solid #10161F">+0x00</span><span class="cond" style="display: flex; flex-direction: column; justify-content: center; padding: 6px 10px; line-height: 1.3; border-right: 1px solid #10161F; min-width: 0; overflow-wrap: anywhere"><b>id</b><span style="font-size: 12px; color: #C2401A">i64</span></span><span style="position: relative"><span class="hatch" style="position: absolute; inset: 0"></span><span class="anim" style="animation-name: v0; position: absolute; inset: 0; display: flex; align-items: center; padding: 0 10px; background: #FF7448; font-weight: 700">1</span></span></div>
+<div style="display: grid; grid-template-columns: 58px minmax(0, 1.25fr) minmax(0, 1fr); min-height: 52px; border-bottom: 1px solid #10161F"><span style="display: flex; align-items: center; padding: 0 8px; font-size: 12px; color: #5B6676; border-right: 1px solid #10161F">+0x08</span><span class="cond" style="display: flex; flex-direction: column; justify-content: center; padding: 6px 10px; line-height: 1.3; border-right: 1px solid #10161F; min-width: 0; overflow-wrap: anywhere"><b>name</b><span style="font-size: 12px; color: #3050D8">String</span></span><span style="position: relative"><span class="hatch" style="position: absolute; inset: 0"></span><span class="anim" style="animation-name: v1; position: absolute; inset: 0; display: flex; align-items: center; padding: 0 10px; background: #8DA2FF">"Ann"</span></span></div>
+<div class="hatch" style="display: grid; grid-template-columns: 58px minmax(0, 1fr); min-height: 28px; border-bottom: 1px solid #10161F; background-color: #E3E8EE"><span style="display: flex; align-items: center; padding: 0 8px; font-size: 12px; color: #3C4756; border-right: 1px solid #10161F">+0x5C</span><span style="display: flex; align-items: center; padding: 0 10px; font-size: 12px; color: #3C4756">4 bytes padding</span></div>
+</div>
+<p style="margin: 24px 0 0; font-size: 16px; line-height: 1.55; text-wrap: pretty"><code class="mono" style="font-size: 13px; background: #CFF3E3; padding: 1px 5px">with("posts")</code> fills every user's posts in one more statement: one per relation level, batched by 1000 parent keys. Never one per row.</p>
+<p class="mono anim" style="animation-name: sc; margin: 12px 0 0; font-size: 12px; color: #0E7A55; font-weight: 700">2 statements · 1 User · 3 Posts</p>
+</div>
+</figure>
+</section>
+
+<section class="wrap" style="max-width: 1280px; margin: 0 auto; padding: 136px 32px 0">
+<div style="display: flex; flex-wrap: wrap; gap: 40px 64px; align-items: flex-start">
+<div style="flex: 5 1 380px; min-width: 0">
+<h2 class="mono" style="margin: 0; font-size: clamp(26px, 3vw, 40px); line-height: 1.15; font-weight: 700; text-wrap: balance">A typo in a column name fails the build.</h2>
+<p style="margin: 20px 0 0; max-width: 52ch; color: #3C4756; text-wrap: pretty"><code class="mono" style="font-size: 14px; color: #10161F">#[rustique::model]</code> gives every column a constant and every relation a typed name. Pass them to the query builder and a misspelling is a compiler error with a suggestion, not an <code class="mono" style="font-size: 14px; color: #10161F">Unknown column</code> at runtime.</p>
+<div class="mono cond" style="margin-top: 32px; display: flex; flex-wrap: wrap; border: 1px solid #10161F; border-right: 0; font-size: 12.5px; background: #F3F5F7">
+<span style="padding: 10px 12px; border-right: 1px solid #10161F; background: #FF7448">User::ID</span>
+<span style="padding: 10px 12px; border-right: 1px solid #10161F; background: #8DA2FF">User::NAME</span>
+<span style="padding: 10px 12px; border-right: 1px solid #10161F; background: #8DA2FF">User::EMAIL</span>
+<span style="padding: 10px 12px; border-right: 1px solid #10161F; background: #FFC53D">User::CREATED_AT</span>
+<span style="padding: 10px 12px; border-right: 1px solid #10161F; background: #38D39F">User::POSTS</span>
+<span class="hatch" style="padding: 10px 12px; border-right: 1px solid #10161F; text-decoration: line-through; text-decoration-color: #C2401A; text-decoration-thickness: 2px; color: #10161F">User::EMIAL</span>
+</div>
+<p class="mono" style="margin: 10px 0 0; font-size: 12px; color: #5B6676">Generated constants. The last one does not exist.</p>
+</div>
+<div class="mono" style="flex: 7 1 520px; min-width: 0; background: #10161F; color: #E8ECF1; border: 1px solid #10161F">
+<div style="display: flex; justify-content: space-between; padding: 10px 16px; border-bottom: 1px solid #2A3442; font-size: 12px; color: #8A96A6"><span>cargo build</span><span style="color: #FF7448">error</span></div>
+<div class="scrollx" style="padding: 18px 20px 6px; font-size: 13px; line-height: 1.7">
+<div class="cl"><span class="t">User</span><span class="p">::query()</span></div>
+<div class="cl"><span class="p">    .where_(</span><span class="t">User</span><span class="p">::</span><span class="typo">EMIAL</span><span class="p">, </span><span class="s">"like"</span><span class="p">, </span><span class="s">"%@example.com"</span><span class="p">)</span></div>
+</div>
+<div class="scrollx" style="padding: 10px 20px 20px; font-size: 12px; line-height: 1.65; border-top: 1px dashed #2A3442">
+<div class="cl"><span style="color: #FF7448; font-weight: 700">error[E0599]</span><span style="font-weight: 700">: no associated item named `EMIAL` found for struct `User`</span></div>
+<div class="cl"><span style="color: #8DA2FF"> --&gt; </span><span class="m">src/main.rs:3:19</span></div>
+<div class="cl"><span style="color: #8DA2FF">  |</span></div>
+<div class="cl"><span style="color: #8DA2FF">3 |</span><span class="p">     .where_(User::EMIAL, "like", "%@example.com")</span></div>
+<div class="cl"><span style="color: #8DA2FF">  |</span><span style="color: #FF7448">                   ^^^^^ associated item not found in `User`</span></div>
+<div class="cl"><span style="color: #8DA2FF">  |</span></div>
+<div class="cl"><span style="color: #38D39F; font-weight: 700">help</span><span>: there is an associated constant `EMAIL` with a similar name</span></div>
+<div class="cl"><span style="color: #8DA2FF">  |</span></div>
+<div class="cl"><span style="color: #8DA2FF">3 |</span><span class="p">     .where_(User::</span><span style="color: #38D39F">EMAIL</span><span class="p">, "like", "%@example.com")</span></div>
+</div>
+</div>
+</div>
+</section>
+
+<section class="wrap" style="max-width: 1280px; margin: 0 auto; padding: 136px 32px 0">
+<div style="display: flex; flex-wrap: wrap; gap: 24px 48px; align-items: flex-end; justify-content: space-between">
+<div style="flex: 1 1 520px; min-width: 0">
+<h2 class="mono" style="margin: 0; font-size: clamp(26px, 3vw, 40px); line-height: 1.15; font-weight: 700; text-wrap: balance">One query. Two grammars.</h2>
+<p style="margin: 20px 0 0; max-width: 60ch; color: #3C4756; text-wrap: pretty">Write the query once. The grammar quotes identifiers, rewrites limits, builds upserts and stores JSON the way each database wants it. Tested against MySQL 8.4 and Oracle XE 21c.</p>
+</div>
+<div role="group" aria-label="SQL dialect" style="display: flex; border: 1px solid #10161F; background: #F3F5F7">
+<button type="button" class="{{segMy}}" aria-pressed="{{isMy}}" onclick="{{pickMy}}">MySQL 8.4</button>
+<button type="button" class="{{segOra}}" aria-pressed="{{isOra}}" onclick="{{pickOra}}">Oracle 19c</button>
+</div>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; margin-top: 32px; border: 1px solid #10161F">
+<div class="mono" style="flex: 5 1 380px; min-width: 0; background: #10161F; color: #E8ECF1">
+<div class="scrollx" style="padding: 22px 22px; font-size: 13.5px; line-height: 1.75">
+<div class="cl"><span class="t">User</span><span class="p">::query()</span></div>
+<div class="cl"><span class="p">    .where_(</span><span class="t">User</span><span class="p">::</span><span class="c">NAME</span><span class="p">, </span><span class="s">"="</span><span class="p">, </span><span class="s">"Ann"</span><span class="p">)</span></div>
+<div class="cl"><span class="p">    .order_by_desc(</span><span class="t">User</span><span class="p">::</span><span class="c">ID</span><span class="p">)</span></div>
+<div class="cl"><span class="p">    .limit(</span><span class="n">10</span><span class="p">)</span></div>
+<div class="cl"><span class="p">    .to_sql(</span><span class="t">Dialect</span><span class="p">::</span><span class="c">{{dialectArg}}</span><span class="p">)?;</span></div>
+</div>
+</div>
+<div style="flex: 7 1 480px; min-width: 0; display: flex; flex-direction: column; background: #F3F5F7">
+<div class="mono" style="display: flex; justify-content: space-between; padding: 10px 18px; border-bottom: 1px solid #10161F; font-size: 12px; color: #3C4756"><span>compiled.sql</span><span>binds: ["Ann"]</span></div>
+<p class="mono" aria-live="polite" style="margin: 0; flex: 1 1 auto; padding: 22px 18px; font-size: 14px; line-height: 1.7; word-break: break-word">{{sql}}</p>
+</div>
+</div>
+
+<div class="scrollx" style="margin-top: 24px">
+<table class="dtable" style="width: 100%; border-collapse: collapse; font-size: 14px; overflow-wrap: anywhere">
+<caption style="text-align: left; padding: 0 0 10px; font-size: 13px; color: #3C4756">What the grammar changes for you, from the dialect guide</caption>
+<thead>
+<tr class="mono" style="font-size: 12px; text-align: left">
+<th scope="col" style="padding: 10px 14px; border: 1px solid #10161F; background: #E3E8EE; font-weight: 600; width: 22%">Concern</th>
+<th scope="col" class="{{thMy}}" style="padding: 10px 14px; border: 1px solid #10161F; font-weight: 600">MySQL 8.4</th>
+<th scope="col" class="{{thOra}}" style="padding: 10px 14px; border: 1px solid #10161F; font-weight: 600">Oracle 19c</th>
+</tr>
+</thead>
+<tbody>
+<!-- for row in diffRows -->
+<tr class="drow">
+<th scope="row" style="padding: 10px 14px; border: 1px solid #10161F; text-align: left; font-weight: 600; background: #F3F5F7">{{row.k}}</th>
+<td class="{{row.myCls}}" style="padding: 10px 14px; border: 1px solid #10161F"><code class="mono" style="font-size: 12.5px">{{row.my}}</code></td>
+<td class="{{row.oraCls}}" style="padding: 10px 14px; border: 1px solid #10161F"><code class="mono" style="font-size: 12.5px">{{row.ora}}</code></td>
+</tr>
+<!-- endfor -->
+</tbody>
+</table>
+</div>
+</section>
+
+<section class="wrap" style="max-width: 1280px; margin: 0 auto; padding: 136px 32px 0">
+<div style="display: flex; flex-wrap: wrap; gap: 48px 64px">
+<div style="flex: 5 1 380px; min-width: 0">
+<h2 class="mono" style="margin: 0; font-size: clamp(26px, 3vw, 40px); line-height: 1.15; font-weight: 700; text-wrap: balance">Relations are fields. Loading is explicit.</h2>
+<p style="margin: 20px 0 0; max-width: 52ch; color: #3C4756; text-wrap: pretty">A relation is a <code class="mono" style="font-size: 14px; color: #10161F">Rel&lt;T&gt;</code> field with an attribute, not a column. Eager-load a nested path and Rustique runs one statement per level. Turn on <code class="mono" style="font-size: 14px; color: #10161F">prevent_lazy_loading</code> in debug builds and an accidental N+1 becomes an error.</p>
+<div class="mono" style="margin-top: 28px; border: 1px solid #10161F; background: #F3F5F7; font-size: 12.5px">
+<div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); background: #E3E8EE; border-bottom: 1px solid #10161F; font-size: 12px"><span style="padding: 8px 12px; border-right: 1px solid #10161F">relation</span><span style="padding: 8px 12px">field type</span></div>
+<div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); border-bottom: 1px solid #10161F"><span style="padding: 10px 12px; border-right: 1px solid #10161F">has_one · belongs_to</span><span style="padding: 10px 12px; background: #FFC53D">Rel&lt;Option&lt;T&gt;&gt;</span></div>
+<div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); border-bottom: 1px solid #10161F"><span style="padding: 10px 12px; border-right: 1px solid #10161F">has_many · belongs_to_many · has_many_through</span><span style="padding: 10px 12px; background: #38D39F">Rel&lt;Vec&lt;T&gt;&gt;</span></div>
+<div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); border-bottom: 1px solid #10161F"><span style="padding: 10px 12px; border-right: 1px solid #10161F">morph_to</span><span style="padding: 10px 12px; background: #FFC53D">Rel&lt;Option&lt;E&gt;&gt;</span></div>
+<div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr)"><span style="padding: 10px 12px; border-right: 1px solid #10161F">with_count</span><span style="padding: 10px 12px; background: #FF7448">Rel&lt;u64&gt;</span></div>
+</div>
+</div>
+
+<div style="flex: 7 1 520px; min-width: 0">
+<div class="mono" style="background: #10161F; color: #E8ECF1; padding: 16px 20px; font-size: 13.5px; border: 1px solid #10161F">
+<div class="cl"><span class="t">User</span><span class="p">::query().with(</span><span class="r">"posts.comments"</span><span class="p">).get(&amp;db).</span><span class="k">await</span><span class="p">?;</span></div>
+</div>
+<ol class="plan" style="list-style: none; margin: 0; padding: 0">
+<li style="display: flex; align-items: stretch; margin-top: 28px; border: 1px solid #10161F; background: #F3F5F7">
+<span class="mono" style="display: flex; align-items: center; justify-content: center; flex: 0 0 56px; background: #10161F; color: #F3F5F7; font-weight: 700; font-size: 14px" aria-label="Statement 1">1</span>
+<div style="flex: 1 1 auto; min-width: 0; padding: 14px 18px"><p class="mono" style="margin: 0; font-size: 13px; font-weight: 700">users</p><p class="mono cond" style="margin: 4px 0 0; font-size: 12px; color: #3C4756; overflow-wrap: anywhere">SELECT * FROM `users`</p></div>
+<span class="mono ptag" style="display: flex; align-items: center; padding: 0 16px; border-left: 1px solid #10161F; background: #FF7448; font-size: 12px; white-space: nowrap">Vec&lt;User&gt;</span>
+</li>
+<li style="position: relative; display: flex; align-items: stretch; margin: 28px 0 0 56px; border: 1px solid #10161F; background: #F3F5F7">
+<span aria-hidden="true" style="position: absolute; left: -29px; top: -29px; width: 19px; height: calc(50% + 29px); border-left: 2px solid #0E7A55; border-bottom: 2px solid #0E7A55"></span>
+<span aria-hidden="true" style="position: absolute; left: -10px; top: calc(50% - 5px); width: 0; height: 0; border-top: 6px solid transparent; border-bottom: 6px solid transparent; border-left: 9px solid #0E7A55"></span>
+<span class="mono" style="display: flex; align-items: center; justify-content: center; flex: 0 0 56px; background: #10161F; color: #F3F5F7; font-weight: 700; font-size: 14px" aria-label="Statement 2">2</span>
+<div style="flex: 1 1 auto; min-width: 0; padding: 14px 18px"><p class="mono" style="margin: 0; font-size: 13px; font-weight: 700">users.posts</p><p class="mono cond" style="margin: 4px 0 0; font-size: 12px; color: #3C4756; overflow-wrap: anywhere">SELECT * FROM `posts` WHERE `posts`.`user_id` IN (?, ?, …)</p></div>
+<span class="mono ptag" style="display: flex; align-items: center; padding: 0 16px; border-left: 1px solid #10161F; background: #38D39F; font-size: 12px; white-space: nowrap">Rel&lt;Vec&lt;Post&gt;&gt;</span>
+</li>
+<li style="position: relative; display: flex; align-items: stretch; margin: 28px 0 0 112px; border: 1px solid #10161F; background: #F3F5F7">
+<span aria-hidden="true" style="position: absolute; left: -29px; top: -29px; width: 19px; height: calc(50% + 29px); border-left: 2px solid #0E7A55; border-bottom: 2px solid #0E7A55"></span>
+<span aria-hidden="true" style="position: absolute; left: -10px; top: calc(50% - 5px); width: 0; height: 0; border-top: 6px solid transparent; border-bottom: 6px solid transparent; border-left: 9px solid #0E7A55"></span>
+<span class="mono" style="display: flex; align-items: center; justify-content: center; flex: 0 0 56px; background: #10161F; color: #F3F5F7; font-weight: 700; font-size: 14px" aria-label="Statement 3">3</span>
+<div style="flex: 1 1 auto; min-width: 0; padding: 14px 18px"><p class="mono" style="margin: 0; font-size: 13px; font-weight: 700">posts.comments</p><p class="mono cond" style="margin: 4px 0 0; font-size: 12px; color: #3C4756; overflow-wrap: anywhere">SELECT * FROM `comments` WHERE `comments`.`post_id` IN (?, ?, …)</p></div>
+<span class="mono ptag" style="display: flex; align-items: center; padding: 0 16px; border-left: 1px solid #10161F; background: #38D39F; font-size: 12px; white-space: nowrap">Rel&lt;Vec&lt;Comment&gt;&gt;</span>
+</li>
+</ol>
+<p style="margin: 18px 0 0; font-size: 15px; color: #3C4756">Three statements for any number of users. Each level batches up to 1000 parent keys per statement.</p>
+</div>
+</div>
+</section>
+
+<section id="bench" class="wrap" style="max-width: 1280px; margin: 0 auto; padding: 136px 32px 0">
+<div style="display: flex; flex-wrap: wrap; gap: 24px 48px; align-items: flex-end; justify-content: space-between">
+<div style="flex: 1 1 520px; min-width: 0">
+<h2 class="mono" style="margin: 0; font-size: clamp(26px, 3vw, 40px); line-height: 1.15; font-weight: 700; text-wrap: balance">Eloquent's API, without Eloquent's runtime.</h2>
+<p style="margin: 20px 0 0; max-width: 60ch; color: #3C4756; text-wrap: pretty">Mean time per operation on the same data, 100,000 users and 1M posts, against Laravel Eloquent with OPcache JIT. Shorter is faster; bars are scaled per scenario.</p>
+</div>
+<div role="group" aria-label="Benchmark database" style="display: flex; border: 1px solid #10161F; background: #F3F5F7">
+<button type="button" class="{{benchMyCls}}" aria-pressed="{{benchIsMy}}" onclick="{{benchMy}}">MySQL 8.4</button>
+<button type="button" class="{{benchOraCls}}" aria-pressed="{{benchIsOra}}" onclick="{{benchOra}}">Oracle XE 21c</button>
+</div>
+</div>
+
+<div style="margin-top: 36px; border-top: 1px solid #10161F">
+<!-- for b in benchRows -->
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px 28px; padding: 18px 0; border-bottom: 1px solid #10161F">
+<div class="bname" style="flex: 0 0 240px; min-width: 0"><p class="mono" style="margin: 0; font-size: 13px; font-weight: 700">{{b.name}}</p><p style="margin: 2px 0 0; font-size: 14px; color: #3C4756">{{b.label}}</p></div>
+<div class="bbars" style="flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; align-items: center; gap: 12px"><div style="flex: 1 1 auto; height: 22px"><div class="bar bytes" style="height: 22px; width: {{b.rw}}; background-color: #FF7448; border: 1px solid #10161F"></div></div><span class="mono" style="flex: 0 0 104px; font-size: 12px; font-variant-numeric: tabular-nums">{{b.r}}</span></div>
+<div style="display: flex; align-items: center; gap: 12px"><div style="flex: 1 1 auto; height: 22px"><div class="bar hatch" style="height: 22px; width: 100%; background-color: #E3E8EE; border: 1px solid #10161F"></div></div><span class="mono" style="flex: 0 0 104px; font-size: 12px; color: #3C4756; font-variant-numeric: tabular-nums">{{b.e}}</span></div>
+</div>
+<p class="mono bfac" style="flex: 0 0 132px; margin: 0; font-size: clamp(20px, 2vw, 26px); font-weight: 700; font-variant-numeric: tabular-nums; text-align: right">{{b.factor}}</p>
+</div>
+<!-- endfor -->
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 12px 28px; justify-content: space-between; margin-top: 18px; font-size: 14px; color: #3C4756">
+<p style="margin: 0; display: flex; gap: 20px; flex-wrap: wrap"><span style="display: inline-flex; align-items: center; gap: 8px"><span class="bytes" style="width: 22px; height: 12px; background-color: #FF7448; border: 1px solid #10161F"></span>rustique</span><span style="display: inline-flex; align-items: center; gap: 8px"><span class="hatch" style="width: 22px; height: 12px; background-color: #E3E8EE; border: 1px solid #10161F"></span>Eloquent</span></p>
+<p style="margin: 0; max-width: 70ch">diesel is in the full results, and it is faster than rustique on some reads. <a href="https://github.com/Eworkssk/rustique/blob/main/bench/RESULTS-mysql.md">MySQL results</a> · <a href="https://github.com/Eworkssk/rustique/blob/main/bench/RESULTS-oracle.md">Oracle results</a> · <a href="https://github.com/Eworkssk/rustique/blob/main/bench/README.md">method</a></p>
+</div>
+</section>
+
+<section class="wrap" style="max-width: 1280px; margin: 0 auto; padding: 136px 32px 0">
+<h2 class="mono" style="margin: 0; font-size: clamp(26px, 3vw, 40px); line-height: 1.15; font-weight: 700">The rest of the surface, field by field.</h2>
+<div class="mono" style="margin-top: 32px; border: 1px solid #10161F; background: #F3F5F7">
+<p style="margin: 0; padding: 14px 18px; border-bottom: 1px solid #10161F; font-size: 14px"><span class="k" style="color: #5B6676">pub struct</span> <span style="color: #C2401A; font-weight: 700">Rustique</span> {</p>
+<!-- 9 rows; each: offset | name | tag (colored chip) | description. Row template: -->
+<a href="Docs.dc.html" class="drow" style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 20px; padding: 16px 18px; border-bottom: 1px solid #10161F; text-decoration: none">
+<span style="flex: 0 0 64px; font-size: 12px; color: #5B6676">+0x00</span><span style="flex: 0 0 150px; font-size: 14px; font-weight: 700">models</span><span style="flex: 0 0 200px; font-size: 12.5px"><span style="background: #FF7448; padding: 3px 8px">Model</span></span><span style="flex: 1 1 340px; font-family: 'Schibsted Grotesk', sans-serif; font-size: 16px; color: #3C4756">Dirty tracking, timestamps, soft deletes, UUID and ULID keys, mass assignment.</span></a>
+<!-- +0x08 query      | QueryBuilder (#8DA2FF) | Wheres on dates, JSON and subqueries, joins, unions, aggregates, upsert, bulk insert.
+     +0x10 relations  | Rel<T> (#38D39F)       | has_one to morph_to_many, eager loading, with_count, where_has, pivots.
+     +0x18 schema     | Migrator (#FFC53D)     | Schema::create, Blueprint, fresh, reset and --step, seeders and a ready CLI.
+     +0x20 events     | Scopes + hooks (#FF7448) | Local and global scopes, creating, saved and deleting hooks, observers.
+     +0x28 pages      | Paginator (#8DA2FF)    | paginate, simple_paginate, cursor_paginate, chunk, chunk_by_id and streaming cursors.
+     +0x30 factories  | Factory (#38D39F)      | User::factory().count(10).create(&db) for tests and seeders.
+     +0x38 casts      | Cast (#FFC53D)         | #[derive(rustique::Cast)] maps JSON and your own types to columns.
+     +0x40 safety     | forbid(unsafe) (bg #10161F, color #F3F5F7) | N+1 detection, deadlock retries, savepoints, query logging through tracing. -->
+<p style="margin: 0; padding: 14px 18px; font-size: 14px">}</p>
+</div>
+</section>
+
+<section class="wrap" style="max-width: 1280px; margin: 0 auto; padding: 136px 32px 0">
+<div style="display: flex; flex-wrap: wrap; gap: 40px 64px; align-items: flex-start">
+<div style="flex: 5 1 360px; min-width: 0">
+<h2 class="mono" style="margin: 0; font-size: clamp(26px, 3vw, 40px); line-height: 1.15; font-weight: 700; text-wrap: balance">Flip the bits you need.</h2>
+<p style="margin: 20px 0 0; max-width: 50ch; color: #3C4756; text-wrap: pretty">Default features cover both databases with TLS through rustls. MySQL only? Drop Oracle and the Instant Client goes with it. Requires Rust 1.88 or newer.</p>
+</div>
+<div style="flex: 7 1 520px; min-width: 0">
+<div class="mono" style="display: flex; justify-content: space-between; align-items: baseline; font-size: 12px; color: #3C4756; padding-bottom: 8px"><span>features: u8</span><span style="font-size: 16px; color: #10161F; font-weight: 700; font-variant-numeric: tabular-nums">{{binary}}</span></div>
+<div role="group" aria-label="Cargo features" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(140px, 100%), 1fr)); border: 1px solid #10161F; background: #F3F5F7">
+<!-- for bit in bits -->
+<button type="button" class="{{bit.cls}}" aria-pressed="{{bit.on}}" onclick="{{bit.toggle}}">
+<span class="mono" style="font-size: 11.5px; color: #3C4756">bit {{bit.idx}} · {{bit.state}}</span>
+<span class="mono" style="font-size: 14px; font-weight: 700">{{bit.name}}</span>
+<span>{{bit.desc}}</span>
+</button>
+<!-- endfor -->
+</div>
+<div class="mono" style="margin-top: 16px; background: #10161F; color: #E8ECF1; border: 1px solid #10161F">
+<div style="display: flex; justify-content: space-between; align-items: center; padding: 0 0 0 16px; border-bottom: 1px solid #2A3442; font-size: 12px; color: #8A96A6"><span>Cargo.toml</span><button class="copy" type="button" onclick="{{copyCargo}}" aria-label="Copy dependency lines">{{cargoCopyLabel}}</button></div>
+<div class="scrollx" style="padding: 16px 20px; font-size: 13px; line-height: 1.8">
+<div class="cl"><span class="m">[dependencies]</span></div>
+<div class="cl"><span class="s">{{cargoLine}}</span></div>
+<div class="cl"><span class="p">tokio = { version = "1", features = ["macros", "rt-multi-thread"] }</span></div>
+<div class="cl"><span class="p">chrono = "0.4"</span></div>
+</div>
+</div>
+<p style="margin: 12px 0 0; font-size: 14px; color: #3C4756">{{featNote}}</p>
+</div>
+</div>
+</section>
+
+<section class="wrap" style="max-width: 1280px; margin: 0 auto; padding: 160px 32px 0">
+<div style="border: 1px solid #10161F; background: #10161F; color: #F3F5F7">
+<div class="mono" aria-hidden="true" style="display: grid; grid-template-columns: 8fr 24fr 12fr 24fr; height: 14px; border-bottom: 1px solid #10161F"><span style="background: #FF7448; border-right: 1px solid #10161F"></span><span style="background: #8DA2FF; border-right: 1px solid #10161F"></span><span style="background: #FFC53D; border-right: 1px solid #10161F"></span><span style="background: #38D39F"></span></div>
+<div style="padding: clamp(32px, 5vw, 72px); display: flex; flex-wrap: wrap; gap: 32px 48px; align-items: flex-end; justify-content: space-between">
+<div style="flex: 1 1 520px; min-width: 0">
+<p class="mono" style="margin: 0; font-size: clamp(28px, 4vw, 56px); line-height: 1.1; font-weight: 700; text-wrap: balance">Your models are already structs.</p>
+<p style="margin: 18px 0 0; max-width: 54ch; color: #B0BAC6">Bring your Eloquent habits. Rust brings the compiler: misspelled columns fail the build, eager loads stay one query per level, and the same code runs on MySQL and Oracle.</p>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 14px">
+<div class="inst" style="display: flex; align-items: stretch; border: 1px solid #F3F5F7">
+<code class="mono" style="display: flex; align-items: center; padding: 0 18px; font-size: 15px; white-space: nowrap">cargo add rustique-orm</code>
+<button class="copy" type="button" onclick="{{copyFoot}}" aria-label="Copy install command">{{footCopyLabel}}</button>
+</div>
+<a class="btn" href="Docs.dc.html" style="background: #F3F5F7; color: #10161F; border-color: #F3F5F7">Read the docs</a>
+</div>
+</div>
+</div>
+</section>
+</main>
+
+<footer class="wrap" style="max-width: 1280px; margin: 0 auto; padding: 40px 32px 56px; display: flex; flex-wrap: wrap; gap: 16px 32px; justify-content: space-between; font-size: 14px; color: #3C4756">
+<p style="margin: 0">MIT or Apache-2.0, at your option.</p>
+<nav aria-label="Footer" style="display: flex; flex-wrap: wrap; gap: 8px 24px">
+<a href="Docs.dc.html">Docs</a>
+<a href="https://github.com/Eworkssk/rustique">GitHub</a>
+<a href="https://crates.io/crates/rustique-orm">crates.io</a>
+<a href="https://github.com/Eworkssk/rustique/blob/main/bench/README.md">Benchmarks</a>
+</nav>
+</footer>
+</div>
+
+<script type="text/x-dc" data-props='{"animate":{"editor":"boolean","default":true,"section":"Motion"},"$preview":{"width":1440,"height":5600}}'>
+class Component extends DCLogic {
+  constructor(...args) {
+    super(...args);
+    this.state = { dialect: 'mysql', bench: 'mysql', f: { mysql: true, tls: true, oracle: true, schema: false }, copied: '' };
+  }
+  componentWillUnmount() { clearTimeout(this._t); }
+  copy(text, key) {
+    try { if (navigator.clipboard) navigator.clipboard.writeText(text).catch(function () {}); } catch (e) {}
+    this.setState({ copied: key });
+    clearTimeout(this._t);
+    this._t = setTimeout(() => this.setState({ copied: '' }), 1600);
+  }
+  toggle(k) {
+    const f = Object.assign({}, this.state.f);
+    f[k] = !f[k];
+    if (k === 'tls' && f.tls) f.mysql = true;
+    if (k === 'mysql' && !f.mysql) f.tls = false;
+    this.setState({ f: f });
+  }
+  renderVals() {
+    const s = this.state;
+    const my = s.dialect === 'mysql';
+    const bm = s.bench === 'mysql';
+    const f = s.f;
+    const diff = [
+      ['Identifiers', '`users`.`email`', '"USERS"."EMAIL"'],
+      ['Placeholders', '?', ':1, :2, …'],
+      ['Limit / offset', 'LIMIT n OFFSET m', 'OFFSET m ROWS FETCH NEXT n ROWS ONLY'],
+      ['Generated key', 'last_insert_id()', 'RETURNING … INTO'],
+      ['Upsert', 'INSERT … ON DUPLICATE KEY UPDATE', 'MERGE'],
+      ['JSON column', 'JSON', 'CLOB with IS JSON check']
+    ].map(function (r) { return { k: r[0], my: r[1], ora: r[2], myCls: my ? 'diff on' : 'diff', oraCls: my ? 'diff' : 'diff on' }; });
+    const mysqlRows = [
+      ['find_by_pk', 'Find one model by key', 136, 279, 'µs'],
+      ['insert_single', 'Insert one row', 1.1, 1.3, 'ms'],
+      ['update_single', 'Save dirty columns', 1.1, 1.4, 'ms'],
+      ['fetch_10000_rows', 'Hydrate 10,000 models', 21.3, 44.7, 'ms'],
+      ['eager_1000_users', '1,000 users with 10,000 posts', 31.5, 81.8, 'ms'],
+      ['bulk_insert_10000', 'Insert 10,000 rows', 86.0, 152.2, 'ms']
+    ];
+    const oracleRows = [
+      ['find_by_pk', 'Find one model by key', 192, 230, 'µs'],
+      ['insert_single', 'Insert one row', 601, 652, 'µs'],
+      ['update_single', 'Save dirty columns', 554, 650, 'µs'],
+      ['fetch_10000_rows', 'Hydrate 10,000 models', 29.8, 83.8, 'ms'],
+      ['eager_1000_users', '1,000 users with 10,000 posts', 48.9, 2693.0, 'ms'],
+      ['bulk_insert_10000', 'Insert 10,000 rows', 1219.2, 7211.0, 'ms']
+    ];
+    const fmt = function (v, u) { return v.toLocaleString('en-US', { minimumFractionDigits: v < 100 && u === 'ms' ? 1 : 0, maximumFractionDigits: 1 }) + ' ' + u; };
+    const benchRows = (bm ? mysqlRows : oracleRows).map(function (r) {
+      return { name: r[0], label: r[1], r: fmt(r[2], r[4]), e: fmt(r[3], r[4]), rw: Math.max(0.6, r[2] / r[3] * 100).toFixed(2) + '%', factor: (r[3] / r[2]).toFixed(1) + '× faster' };
+    });
+    const list = [];
+    if (f.mysql) list.push('"mysql"');
+    if (f.tls) list.push('"mysql-tls"');
+    if (f.oracle) list.push('"oracle"');
+    if (f.schema) list.push('"schema-check"');
+    const isDefault = f.mysql && f.tls && f.oracle;
+    let cargoLine;
+    if (isDefault && !f.schema) cargoLine = 'rustique-orm = "0.2"';
+    else if (isDefault) cargoLine = 'rustique-orm = { version = "0.2", features = ["schema-check"] }';
+    else cargoLine = 'rustique-orm = { version = "0.2", default-features = false, features = [' + list.join(', ') + '] }';
+    let featNote = 'The oracle feature needs Oracle Instant Client at runtime only, not to build.';
+    if (!f.mysql && !f.oracle) featNote = 'Pick at least one database driver.';
+    else if (!f.oracle) featNote = 'Pure Rust from driver to TLS: no C client to install.';
+    const defs = [
+      ['schema', 3, 'schema-check', 'Check model structs against a schema snapshot at compile time'],
+      ['oracle', 2, 'oracle', 'Oracle 19c+ driver'],
+      ['tls', 1, 'mysql-tls', 'TLS through rustls'],
+      ['mysql', 0, 'mysql', 'MySQL 8.4+, pure Rust driver']
+    ];
+    const self = this;
+    const bits = defs.map(function (d) {
+      const on = !!f[d[0]];
+      return { name: d[2], idx: d[1], desc: d[3], on: on, state: on ? '1' : '0', cls: on ? 'bit on' : 'bit', toggle: function () { self.toggle(d[0]); } };
+    });
+    const binary = '0b' + defs.map(function (d) { return f[d[0]] ? '1' : '0'; }).join('');
+    const cargoText = '[dependencies]\n' + cargoLine + '\ntokio = { version = "1", features = ["macros", "rt-multi-thread"] }\nchrono = "0.4"\n';
+    return {
+      rootCls: this.props.animate === false ? 'still' : '',
+      segMy: my ? 'seg on' : 'seg', segOra: my ? 'seg' : 'seg on', isMy: my, isOra: !my,
+      thMy: my ? 'diff on' : 'diff', thOra: my ? 'diff' : 'diff on',
+      pickMy: function () { self.setState({ dialect: 'mysql' }); },
+      pickOra: function () { self.setState({ dialect: 'oracle' }); },
+      dialectArg: my ? 'MySql' : 'Oracle',
+      sql: my
+        ? 'SELECT * FROM `users` WHERE `name` = ? AND `users`.`deleted_at` IS NULL ORDER BY `id` DESC LIMIT 10'
+        : 'SELECT * FROM "USERS" WHERE "NAME" = :1 AND "USERS"."DELETED_AT" IS NULL ORDER BY "ID" DESC FETCH NEXT 10 ROWS ONLY',
+      diffRows: diff,
+      benchMyCls: bm ? 'seg on' : 'seg', benchOraCls: bm ? 'seg' : 'seg on', benchIsMy: bm, benchIsOra: !bm,
+      benchMy: function () { self.setState({ bench: 'mysql' }); },
+      benchOra: function () { self.setState({ bench: 'oracle' }); },
+      benchRows: benchRows,
+      bits: bits, binary: binary, cargoLine: cargoLine, featNote: featNote,
+      copyHero: function () { self.copy('cargo add rustique-orm', 'hero'); },
+      copyFoot: function () { self.copy('cargo add rustique-orm', 'foot'); },
+      copyCargo: function () { self.copy(cargoText, 'cargo'); },
+      heroCopyLabel: s.copied === 'hero' ? 'Copied' : 'Copy',
+      footCopyLabel: s.copied === 'foot' ? 'Copied' : 'Copy',
+      cargoCopyLabel: s.copied === 'cargo' ? 'Copied' : 'Copy'
+    };
+  }
+}
+</script>
+</body></html>

@@ -1,0 +1,129 @@
+---
+import { groupColor } from '../../data/docs';
+---
+<div role="search" class="srchwrap" style="flex: 1 1 320px; display: flex; align-items: center; justify-content: center; min-height: 64px; padding: 8px 0">
+<div style="position: relative; width: 100%; max-width: 520px" data-search data-colors={JSON.stringify(groupColor)}>
+<label for="docsearch" class="vh">Search the docs</label>
+<svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="#3C4756" stroke-width="1.5" aria-hidden="true" class="sicon" style="position: absolute; left: 14px; top: 14px"><circle cx="7" cy="7" r="5"></circle><path d="M11 11l3.5 3.5"></path></svg>
+<input id="docsearch" class="srch" type="search" autocomplete="off" placeholder="Search the docs: with_count, paginate, upsert" role="combobox" aria-controls="search-results" aria-expanded="false" aria-autocomplete="list">
+<span class="mono kbd" aria-hidden="true" style="position: absolute; right: 10px; top: 11px; font-size: 12px; padding: 3px 6px; color: #3C4756; background: #F3F5F7">Ctrl K</span>
+<div id="search-results" role="listbox" aria-label="Search results" hidden style="position: absolute; top: calc(100% + 8px); right: 0; width: min(620px, 92vw); background: #F3F5F7; border: 1px solid #10161F; box-shadow: 0 22px 48px rgba(16,22,31,0.22); z-index: 30">
+<div class="mono" style="display: flex; justify-content: space-between; gap: 12px; padding: 10px 16px; border-bottom: 1px solid #10161F; font-size: 12px; color: #3C4756"><span data-label></span><span>↑ ↓ to move · Enter to open · Esc to close</span></div>
+<div data-list></div>
+</div>
+</div>
+</div>
+
+<script>
+  type Item = { href: string; group: string; page: string; title: string; snip: string };
+  type Pagefind = {
+    debouncedSearch: (q: string, o?: object, ms?: number) => Promise<{ results: { data: () => Promise<any> }[] } | null>;
+  };
+
+  const box = document.querySelector<HTMLElement>('[data-search]')!;
+  const input = box.querySelector<HTMLInputElement>('#docsearch')!;
+  const panel = box.querySelector<HTMLElement>('#search-results')!;
+  const label = panel.querySelector<HTMLElement>('[data-label]')!;
+  const list = panel.querySelector<HTMLElement>('[data-list]')!;
+  const colors: Record<string, string> = JSON.parse(box.dataset.colors!);
+  let items: Item[] = [];
+  let active = 0;
+  let pagefind: Promise<Pagefind> | undefined;
+
+  const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
+
+  // Highlights the first search term inside the result title.
+  function mark(title: string, q: string) {
+    const term = q.trim().split(/\s+/)[0]?.toLowerCase() ?? '';
+    const at = term ? title.toLowerCase().indexOf(term) : -1;
+    if (at < 0) return esc(title);
+    return esc(title.slice(0, at)) + '<mark class="hit">' + esc(title.slice(at, at + term.length)) + '</mark>' + esc(title.slice(at + term.length));
+  }
+
+  function open(show: boolean) {
+    panel.hidden = !show;
+    input.setAttribute('aria-expanded', String(show));
+  }
+
+  function render(q: string, note?: string) {
+    label.textContent = items.length ? `${items.length} result${items.length === 1 ? '' : 's'} for “${q}”` : 'No results';
+    list.innerHTML = items.length
+      ? items
+          .map(
+            (it, i) => `<a id="sr-${i}" class="res${i === active ? ' act' : ''}" href="${esc(it.href)}" role="option" aria-selected="${i === active}">
+<span class="mono" style="align-self: start; margin-top: 3px; font-size: 11.5px; padding: 3px 6px; border: 1px solid #10161F; background: ${colors[it.group] ?? '#E3E8EE'}">${esc(it.group)}</span>
+<span style="display: flex; flex-direction: column; min-width: 0">
+<span style="font-size: 13px; color: #3C4756">${esc(it.page)}</span>
+<span style="font-size: 16px; font-weight: 600; line-height: 1.35">${mark(it.title, q)}</span>
+<span style="font-size: 14px; line-height: 1.45; color: #3C4756">${it.snip}</span>
+</span></a>`,
+          )
+          .join('')
+      : `<div style="padding: 22px 16px">
+<p style="margin: 0; font-weight: 600">${note ? esc(note) : `Nothing matches “${esc(q)}”.`}</p>
+<p style="margin: 6px 0 0; font-size: 15px; color: #3C4756">Try a method or a concept: <span class="ic">with_count</span>, <span class="ic">paginate</span>, <span class="ic">soft deletes</span>, <span class="ic">upsert</span>.</p>
+</div>`;
+    input.setAttribute('aria-activedescendant', items.length ? `sr-${active}` : '');
+    open(true);
+  }
+
+  async function search(q: string) {
+    if (!q.trim()) return open(false);
+    try {
+      // The index only exists after `npm run build` (pagefind runs on dist/).
+      const url = '/pagefind/pagefind.js';
+      pagefind ??= import(/* @vite-ignore */ url);
+      const res = await (await pagefind).debouncedSearch(q, {}, 150);
+      if (!res || q !== input.value) return; // a newer keystroke superseded this search
+      const pages = await Promise.all(res.results.slice(0, 7).map((r) => r.data()));
+      items = pages
+        .flatMap((d) => {
+          const group = d.meta.group ?? '';
+          const subs = d.sub_results?.length ? d.sub_results.slice(0, 3) : [d];
+          return subs.map((s: any) => ({
+            href: s.url,
+            group,
+            page: d.meta.title,
+            title: s.title ?? d.meta.title,
+            snip: s.excerpt.replace(/<mark>/g, '<mark class="hit">'),
+          }));
+        })
+        .slice(0, 7);
+      active = 0;
+      render(q);
+    } catch {
+      items = [];
+      render(q, 'Search is not available in dev mode. Run npm run build.');
+    }
+  }
+
+  input.addEventListener('input', () => search(input.value));
+  input.addEventListener('focus', () => input.value.trim() && open(true));
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      input.value = '';
+      items = [];
+      open(false);
+    } else if (!panel.hidden && items.length && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
+      e.preventDefault();
+      active = (active + (e.key === 'ArrowDown' ? 1 : items.length - 1)) % items.length;
+      render(input.value);
+      document.getElementById(`sr-${active}`)?.scrollIntoView({ block: 'nearest' });
+    } else if (e.key === 'Enter' && items[active] && !panel.hidden) {
+      e.preventDefault();
+      location.href = items[active].href;
+    }
+  });
+  document.addEventListener('click', (e) => {
+    if (!box.contains(e.target as Node)) open(false);
+  });
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+      e.preventDefault();
+      input.focus();
+      input.select();
+    }
+  });
+  // The landing page's "Search docs" box links to /docs/#docsearch.
+  if (location.hash === '#docsearch') input.focus();
+</script>

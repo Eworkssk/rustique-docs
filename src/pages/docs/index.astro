@@ -1,0 +1,8 @@
+---
+import DocPage from '../../layouts/DocPage.astro';
+import { orderedDocs } from '../../data/docs';
+
+const docs = await orderedDocs();
+const entry = docs.find((d) => d.id === 'getting-started') ?? docs[0];
+---
+<DocPage entry={entry} noindex />
