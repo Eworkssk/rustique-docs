@@ -139,13 +139,36 @@ let posts = Post::factory().count(3).state(move |p| p.user_id = user_id).create(
 
 ## Callbacks
 
-`after_making` runs on each model after its states, in `make` and `create`. `after_creating` runs on each saved model once the whole batch (and its `has` children) is saved, and gets the executor `create` was given as an `AnyExecutor` (a `&Db` or `&Transaction`, usable like either):
+Callbacks every factory of a model needs go on `HasFactory`, like Laravel's `configure()`. `after_making` runs on each model after its states, in `make` and `create`. `after_creating` runs on each saved model once the whole batch (and its `has` children) is saved, and gets the executor `create` was given as an `AnyExecutor` (a `&Db` or `&Transaction`, usable like either). Write it as an `async fn`; no `Box::pin` is needed, and the compiler checks that its body is `Send`:
+
+```rust
+use rustique::AnyExecutor;
+
+impl HasFactory for User {
+    fn definition(n: u64) -> Self {
+        User { email: format!("User{n}@Example.com"), ..Default::default() }
+    }
+
+    fn after_making(&mut self) {
+        self.email.make_ascii_lowercase();
+    }
+
+    async fn after_creating(&mut self, db: &AnyExecutor<'_>) -> rustique::Result<()> {
+        Post::factory().for_(&*self, "user").create(db).await?;
+        Ok(())
+    }
+}
+```
+
+For a one-off callback, chain `after_making` / `after_creating` on the factory. They run after the model's hooks, in the order they were added. A chained `after_creating` is stored, so its closure returns a boxed future:
 
 ```rust
 let factory = User::factory()
-    .after_making(|user| user.email.make_ascii_lowercase())
+    .after_making(|user| user.email.push_str(".test"))
     .after_creating(|user, db| Box::pin(async move {
-        Post::factory().for_(&*user, "user").create(db).await?;
-        Ok(())
+        user.email = format!("user{}@example.com", user.id);
+        user.save(db).await
     }));
 ```
+
+The order for each model is: `definition`, states, `HasFactory::after_making`, chained `after_making`; then, after saving, `HasFactory::after_creating`, chained `after_creating`.

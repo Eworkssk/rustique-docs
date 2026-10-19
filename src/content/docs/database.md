@@ -85,15 +85,15 @@ Rust has no async drop: a `Transaction` dropped without `commit` (an early `?` r
 
 ```rust
 let order_id = db
-    .transaction(|tx| Box::pin(async move {
+    .transaction(async |tx| {
         user.save(tx).await?;
         order.save(tx).await?;
         Ok::<_, rustique::Error>(order.id)
-    }))
+    })
     .await?;
 ```
 
-- Wrap the body in `Box::pin(async move { ... })`. The boxed future keeps the call `Send`, so it works in `tokio::spawn` and web handlers (plain async closures cannot promise that on stable Rust).
+- Pass an async closure: `async |tx| { ... }`. The call is `Send` whenever the closure's body is, so it works in `tokio::spawn` and web handlers.
 - The error type is yours: any `E: From<rustique::Error>`. Return `Err(AppError::OutOfStock)` to roll back on a business rule. Name the type once (`Ok::<_, rustique::Error>(..)` or a typed `let`) since `?` alone cannot infer it.
 - The closure runs once. For retries, see below.
 
@@ -102,43 +102,43 @@ let order_id = db
 `transaction_with_retries` is Laravel's `DB::transaction($fn, $attempts)`: when the closure (or the commit) fails with a deadlock, lock wait timeout or serialization failure, the transaction is rolled back and the closure runs again, up to `attempts` times in all. Other errors return at once.
 
 ```rust
-db.transaction_with_retries(3, |tx| Box::pin(async move {
+db.transaction_with_retries(3, async |tx| {
     tx.statement("UPDATE stock SET qty = qty - 1 WHERE sku = ?", ["A1".into()]).await?;
     Ok::<_, rustique::Error>(())
-}))
+})
 .await?;
 ```
 
-The closure is `FnMut`, so it can run again: clone what it moves in. `rustique::Error::is_concurrency_error()` names the errors that are retried (MySQL 1213 / 1205, ORA-00060 / ORA-08177). With your own error type, implement `rustique::TransactionError` for it.
+The closure is `AsyncFnMut`, so it can run again: it may borrow or mutate what it captures, but not move it out. Inside `tokio::spawn` or a web handler, write `async move |tx| { ... }` so the closure owns its captures; a borrowing retry closure is not `Send` (a current rustc limit). `rustique::Error::is_concurrency_error()` names the errors that are retried (MySQL 1213 / 1205, ORA-00060 / ORA-08177). With your own error type, implement `rustique::TransactionError` for it.
 
 ### Nested transactions
 
 `tx.transaction(...)` runs a closure behind a savepoint, like a nested `DB::transaction`: an `Err` undoes only the closure's work, and the outer transaction carries on.
 
 ```rust
-db.transaction(|tx| Box::pin(async move {
+db.transaction(async |tx| {
     tx.statement("INSERT INTO orders (total) VALUES (?)", [10.into()]).await?;
     let coupon = tx
-        .transaction(|tx| Box::pin(async move {
+        .transaction(async |tx| {
             tx.statement("INSERT INTO coupons (code) VALUES (?)", ["X".into()]).await
-        }))
+        })
         .await;
     if coupon.is_err() { /* the order stays */ }
     Ok::<_, rustique::Error>(())
-}))
+})
 .await?;
 ```
 
 ### Rolling back after tests
 
-`db.rollback_after(|tx| ...)` runs the closure in a transaction that is always rolled back, and returns the closure's result. Run a test's queries on `tx` and the database is left as it was:
+`db.rollback_after(async |tx| ...)` runs the closure in a transaction that is always rolled back, and returns the closure's result. Run a test's queries on `tx` and the database is left as it was:
 
 ```rust
 let count = db
-    .rollback_after(|tx| Box::pin(async move {
+    .rollback_after(async |tx| {
         tx.statement("DELETE FROM users", []).await?;
         QueryBuilder::table("users").count(tx).await
-    }))
+    })
     .await?;
 assert_eq!(count, 0);   // and the users are still there
 ```

@@ -80,9 +80,9 @@ export function cargo(f: Features) {
   if (f.schema) list.push('"schema-check"');
   const isDefault = f.mysql && f.tls && f.oracle;
   let line: string;
-  if (isDefault && !f.schema) line = 'rustique-orm = "0.2"';
-  else if (isDefault) line = 'rustique-orm = { version = "0.2", features = ["schema-check"] }';
-  else line = 'rustique-orm = { version = "0.2", default-features = false, features = [' + list.join(', ') + '] }';
+  if (isDefault && !f.schema) line = 'rustique-orm = "0.3"';
+  else if (isDefault) line = 'rustique-orm = { version = "0.3", features = ["schema-check"] }';
+  else line = 'rustique-orm = { version = "0.3", default-features = false, features = [' + list.join(', ') + '] }';
   let note = 'The oracle feature needs Oracle Instant Client at runtime only, not to build.';
   if (!f.mysql && !f.oracle) note = 'Pick at least one database driver.';
   else if (!f.oracle) note = 'Pure Rust from driver to TLS: no C client to install.';
